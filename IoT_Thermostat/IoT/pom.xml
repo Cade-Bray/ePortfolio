@@ -37,19 +37,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Include slf4j which is Pi4j dependencies -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
         <!-- include Pi4J Core -->
         <dependency>
             <groupId>com.pi4j</groupId>

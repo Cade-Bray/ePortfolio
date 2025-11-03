@@ -7,6 +7,7 @@ import com.pi4j.io.i2c.I2CProvider;
 
 public class AHT20 {
     private final I2C i2c;
+    final double SCALE;
 
     public AHT20() {
         Context pi4j = Pi4J.newAutoContext();
@@ -18,6 +19,7 @@ public class AHT20 {
 
         I2CProvider i2CProvider = pi4j.provider("linuxfs-i2c");
         this.i2c = i2CProvider.create(config);
+        SCALE = 1 << 20; // 2^20 == 1048576
     }
     
     public double[] readSensor() throws Exception {
@@ -34,9 +36,9 @@ public class AHT20 {
         
         // Parse out the temperature sensor reading
         final int temp = ((data[3] & 0x0F) << 16) | ((data[4] & 0xFF) << 8) | (data[5] & 0xFF);
-        
-        double humidity = humid * 100.0 / 1048576.0;
-        double temperature_C = temp * 200.0 / 1048576.0 - 50.0;
+
+        double humidity = humid * 100.0 / SCALE;
+        double temperature_C = temp * 200.0 / SCALE - 50.0;
         double temperature_F = temperature_C * 9.0 / 5.0 + 32.0;
 
         return new double[] {humidity, temperature_F, temperature_C};
@@ -45,9 +47,12 @@ public class AHT20 {
     public static void main(String[] args) throws Exception {
         AHT20 aht20 = new AHT20();
 
+        //noinspection InfiniteLoopStatement
         while (true){
             var reading = aht20.readSensor();
-            System.out.println("Humid: " + reading[0] + " Temp: " + reading[1]);
+            //noinspection BusyWait
+            Thread.sleep(1000);
+            System.out.printf("Humid: %.2f%%  Temp: %.2fF (%.2fC)%n", reading[0], reading[1], reading[2]);
         }
     }
 }
