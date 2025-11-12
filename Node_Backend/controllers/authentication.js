@@ -1,0 +1,65 @@
+const User = require('../models/user');
+const passport = require('passport');
+
+/**
+ * This is the registration function. The request is parsed to create a new user under the schema. The return is JWT.
+ * @param req Express request. This is parsed for the name, email, and password provided in plaintext.
+ * @param res Express response. This will be packed with a status code 400/200 and a token if applicable.
+ * @return {Promise<*>} Express response with a json of a JWT. When the JWT is decoded it contains the user id, email,
+ *                      name, iat, and exp.
+ */
+async function register(req, res) {
+    // Validate message to ensure that all parameters are present.
+    if (!req.body.name || !req.body.email || !req.body.password) {
+        return res.status(400).json({message: 'All fields required'});
+    }
+
+    const user = new User({
+        name: req.body.name,
+        email: req.body.email,
+        password: ''
+    });
+
+    user.setPassword(req.body.password);
+    const query = await user.save();
+
+    if (!query) {
+        // Database returned nothing
+        return res.status(400).json(err);
+    } else {
+        // Return a new user token
+        const token = user.generateJWT();
+        return res.status(200).json(token);
+    }
+}
+
+/**
+ * This function handles the login authentication.
+ * @param req Express provided requirements. Used to parse the email and password.
+ * @param res Express provided response. This is packed with a status and json data.
+ * @return {Promise<void>} Returning a status code 200/400/401/404 packed in an express response. Packed with JSON data.
+ */
+async function login(req, res) {
+    // Error trap for not filling out all fields.
+    if (!req.body.email || !req.body.password) {
+        return res.status(400).json({message: 'All fields are required.'});
+    }
+
+    // Using passport for authentication
+    passport.authenticate('local', (err, user, info) => {
+        // Error trap
+        if (err) {
+            // Error in authentication process.
+            return res.status(404).json(err);
+        }
+
+        if (user) { // Auth successful
+            const token = user.generateJWT();
+            return res.status(200).json(token);
+        } else { // Auth failed
+            return res.status(401).json(info);
+        }
+    }) (req, res);
+}
+
+module.exports = { register, login };
