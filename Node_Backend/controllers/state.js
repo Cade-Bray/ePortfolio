@@ -23,7 +23,7 @@ async function iotList(req, res) {
 }
 
 /**
- * GET - /iots/:iotCode <br>
+ * GET - /iot/:iotCode <br>
  * This function lists the iot by the given code.
  * @param req Express provided requirements
  * @param res Express provided response.
@@ -97,7 +97,7 @@ async function iotsUpdateIot(req, res) {
 }
 
 /**
- * DELETE - /iots/:iotCode
+ * DELETE - /iot/:iotCode
  * This function will delete the given iot code found in the database.
  * @param req Express provided requirements. This is used to grab the iot code from the parameters.
  * @param res Express provided requirements. This is used for the packed response.

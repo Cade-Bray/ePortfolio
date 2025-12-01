@@ -13,3 +13,7 @@
 /.idea/
 /IoT_Thermostat/.idea/
 /IoT_Thermostat/target/
+/Node_Backend/.env
+/package-lock.json
+/node_modules/*
+

@@ -58,4 +58,5 @@ connect();
 
 // Import Mongoose schema
 require('./iot');
+require('./user');
 module.exports = mongoose;

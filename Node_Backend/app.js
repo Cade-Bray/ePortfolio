@@ -1,6 +1,11 @@
+require('dotenv').config();
+if (!process.env.JWT_SECRET) {
+    console.error('FATAL: process.env.JWT_SECRET is not set');
+    process.exit(1); // fail fast so the app doesn't run without a secret
+}
+
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
 require('./models/db'); // Connection to database.
 
 const app = express();
@@ -8,6 +13,11 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
+// Routes
+const apiRouter = require('./routes/index');
+app.use('/api', apiRouter);
 
 // 404 handler
 app.use((req, res) => {

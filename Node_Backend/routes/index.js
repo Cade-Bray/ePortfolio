@@ -47,13 +47,13 @@ router.route('/login').post(authCtrl.login);
 
 // TODO: consider adding jwt authentication to the GET request
 router
-    .route('/iots')
+    .route('/iot')
     .get(stateCtrl.iotList) // GET request for all trips
     .post(authenticateJWT, stateCtrl.iotsAddIot); // POST request to create a trip
 
 // TODO: consider adding jwt authentication to the GET request
 router
-    .route('/iots/:iotCode')
+    .route('/iot/:iotCode')
     .get(stateCtrl.iotsFindByCode)
     .put(authenticateJWT, stateCtrl.iotsUpdateIot)
     .delete(authenticateJWT, stateCtrl.iotsDeleteIot);
