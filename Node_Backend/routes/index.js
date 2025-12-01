@@ -4,6 +4,13 @@ const stateCtrl = require('../controllers/state');
 const authCtrl = require('../controllers/authentication');
 const jwt = require('jsonwebtoken'); // Enable JWT
 
+/**
+ * Middleware function to authenticate JWT tokens.
+ * @param req This is the request object
+ * @param res This is the response object
+ * @param next This is the next function in the middleware chain
+ * @return {*} Returns a 401 Unauthorized if the token is invalid or missing, otherwise calls next()
+ */
 function authenticateJWT(req, res, next) {
     // Error trap for catching a missing auth header
     const authHeader = req.headers['authorization'];
@@ -38,15 +45,17 @@ function authenticateJWT(req, res, next) {
 router.route('/register').post(authCtrl.register);
 router.route('/login').post(authCtrl.login);
 
+// TODO: consider adding jwt authentication to the GET request
 router
-    .route('/trips')
-    .get(tripsCtrl.tripsList) // GET request for all trips
-    .post(authenticateJWT, tripsCtrl.tripsAddTrip); // POST request to create a trip
+    .route('/iots')
+    .get(stateCtrl.iotList) // GET request for all trips
+    .post(authenticateJWT, stateCtrl.iotsAddIot); // POST request to create a trip
 
+// TODO: consider adding jwt authentication to the GET request
 router
-    .route('/trips/:tripCode')
-    .get(tripsCtrl.tripsFindByCode)
-    .put(authenticateJWT, tripsCtrl.tripsUpdateTrip)
-    .delete(authenticateJWT, tripsCtrl.tripsDeleteTrip);
+    .route('/iots/:iotCode')
+    .get(stateCtrl.iotsFindByCode)
+    .put(authenticateJWT, stateCtrl.iotsUpdateIot)
+    .delete(authenticateJWT, stateCtrl.iotsDeleteIot);
 
 module.exports = router;
