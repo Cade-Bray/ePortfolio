@@ -8,7 +8,12 @@ import {iotData} from './iot-data';
   providedIn: 'root'
 })
 export class Authentication {
-  // Setup storage and service access
+
+  /**
+   * Setup storage and service access
+   * @param storage This is the injected storage service.
+   * @param iotDataService This is the IoT data service.
+   */
   constructor(
     @Inject(BROWSER_STORAGE) private storage: Storage,
     private iotDataService: iotData
@@ -17,6 +22,10 @@ export class Authentication {
   // Variable to handle Authentication Responses
   authResp: AuthResponse = new AuthResponse();
 
+  /**
+   * Get the JWT token from storage.
+   * @return The JWT token as a string, or an empty string if not found or invalid.
+   */
   public getToken(): string {
     try {
       if (!this.storage || typeof this.storage.getItem !== 'function') {
@@ -36,7 +45,10 @@ export class Authentication {
     }
   }
 
-  // Save our token to our Storage provider.
+  /**
+   * Save the JWT token to storage.
+   * @param token The JWT token to be saved.
+   */
   public saveToken(token: string): void {
     try {
       this.storage?.setItem('iot-token', token);
@@ -45,7 +57,9 @@ export class Authentication {
     }
   }
 
-  // Logout of our application and remove the JWT from local storage
+  /**
+   * Logout of the application and remove the JWT from storage.
+   */
   public logout(): void {
     try {
       this.storage?.removeItem('iot-token');
@@ -54,8 +68,10 @@ export class Authentication {
     }
   }
 
-  // Boolean to determine if we are logged in and the token is still valid. Even if we have a token we still have to
-  // re-authenticate if the token is expired
+  /**
+   * Check if the user is logged in and the token is still valid.
+   * @return True if the user is logged in and the token is valid, false otherwise.
+   */
   public isLoggedIn(): boolean {
     const token: string = this.getToken();
     if (token) {
@@ -77,8 +93,11 @@ export class Authentication {
     return {email, name} as User;
   }
 
-  // Login method that leverages the login method in the trip data service because that method returns an observable, we
-  // subscribe to the result and only process when an observable condition is satisfied.
+  /**
+   * Perform login operation using provided user credentials.
+   * @param user This is the User object containing user details.
+   * @param passwd This is the password string for the user.
+   */
   public login(user: User, passwd: string): void {
     this.iotDataService.login(user, passwd).subscribe({
       next: (value: any) => {

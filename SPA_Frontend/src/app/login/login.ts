@@ -21,7 +21,6 @@ export class Login implements OnInit{
   ngOnInit(){}
 
   public formError: string = '';
-  submitted = false;
 
   // User credentials for login
   credentials = {
