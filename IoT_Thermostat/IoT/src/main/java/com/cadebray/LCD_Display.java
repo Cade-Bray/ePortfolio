@@ -169,21 +169,27 @@ public class LCD_Display{
     public void print(String message) {
         int curRow = 0;
         int curCol = 0;
+
+        // Start at home position
         setCursor(0, 0);
+
+        // Write each character in the message
         for (char c : message.toCharArray()) {
+            // Handle new line character
             if (c == '\n') {
-                curRow++;
-                if (curRow >= rows) curRow = rows - 1;
-                curCol = 0;
-                setCursor(curCol, curRow);
+                curRow++; // Move to the beginning of the next line
+                if (curRow >= rows) curRow = rows - 1; // Clamp to max rows
+                curCol = 0; // Reset column to 0
+                setCursor(curCol, curRow); // Update cursor position
             } else {
-                writeData(c);
-                curCol++;
-                if (curCol >= columns) {
+                writeData(c); // Write the character to the LCD
+                curCol++; // Move to the next position
+                if (curCol >= columns) { // Handle line wrap
+                    // Move to the beginning of the next line and move to the next row
                     curCol = 0;
                     curRow++;
-                    if (curRow >= rows) curRow = rows - 1;
-                    setCursor(curCol, curRow);
+                    if (curRow >= rows) curRow = rows - 1; // Clamp to max rows
+                    setCursor(curCol, curRow); // Update cursor position
                 }
             }
         }
