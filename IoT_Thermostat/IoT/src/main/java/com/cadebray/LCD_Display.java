@@ -214,8 +214,6 @@ public class LCD_Display{
     public static void main(String[] args) throws Exception {
         var pi4j = com.pi4j.Pi4J.newAutoContext();
         LCD_Display lcd = new LCD_Display(pi4j);
-
-        // Write "Hello, World!" to the LCD
         String message = "Hello, World!\nTest";
         lcd.print(message);
         Thread.sleep(5000);
