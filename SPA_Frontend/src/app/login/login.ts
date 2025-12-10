@@ -51,19 +51,26 @@ export class Login implements OnInit{
     } as User;
 
     // Call the login method of the Authentication service
-    this.authenticationService.login(newUser, this.credentials.password);
-
-    // Check if the user is logged in and navigate accordingly
-    if (this.authenticationService.isLoggedIn()){
-      this.router.navigate(['']);
-    } else {
-      // Set a timer to check login status after 3 seconds
-      const timer = setTimeout(() => {
-        if (this.authenticationService.isLoggedIn()) {
-          this.router.navigate(['']);
+    this.authenticationService.login(newUser, this.credentials.password)
+      .subscribe({
+        next: (res) => {
+          if (res) {
+            // token already saved by the authentication service
+            this.router.navigate(['']).then(() => {
+              console.info('Navigation to home page successful after login.');
+            });
+          } else {
+            // If no token is received, set an error message
+            this.formError = 'An unknown error occurred during login. Please try again.';
+            console.warn('Login response did not contain a token:', res);
+          }
+        },
+        error: (err) => {
+          // On error, set the form error message
+          console.warn('Login failed:', err);
+          this.formError = err.error.message;
         }
-      }, 3000);
-    }
+      });
   }
 
   /**
@@ -78,11 +85,11 @@ export class Login implements OnInit{
     if (!this.credentials.email || !this.credentials.password) {
       // Set error message for missing fields
       this.formError = 'All fields are required, please try again.';
-      this.router.navigateByUrl('#');
-    } else {
-      // Clear the name field and proceed with login
-      this.credentials.name = ' ';
-      this.doLogin();
+      return;
     }
+
+    // Clear the name field and proceed with login
+    this.credentials.name = '';
+    this.doLogin();
   }
 }

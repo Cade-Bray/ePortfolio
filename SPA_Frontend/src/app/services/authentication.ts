@@ -1,26 +1,23 @@
 import { Inject, Injectable } from '@angular/core';
 import { BROWSER_STORAGE } from '../storage';
 import { User } from '../models/user';
-import { AuthResponse } from '../models/auth-response';
-import {iotData} from './iot-data';
+import { Observable, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Authentication {
 
+  // Globals
+  private baseURL = 'http://localhost:3000/api';
+
   /**
    * Setup storage and service access
    * @param storage This is the injected storage service.
-   * @param iotDataService This is the IoT data service.
+   * @param http This is the injected HTTP client service.
    */
-  constructor(
-    @Inject(BROWSER_STORAGE) private storage: Storage,
-    private iotDataService: iotData
-  ) {}
-
-  // Variable to handle Authentication Responses
-  authResp: AuthResponse = new AuthResponse();
+  constructor(@Inject(BROWSER_STORAGE) private storage: Storage, private http: HttpClient) {}
 
   /**
    * Get the JWT token from storage.
@@ -32,7 +29,7 @@ export class Authentication {
         console.warn('Storage unavailable');
         return '';
       }
-      const raw = this.storage.getItem('iot-token');
+      const raw = this.storage.getItem('token');
       if (raw == null) { return ''; }
       const trimmed = String(raw).trim();
       if (/^(?:undefined|null|)$/i.test(trimmed)) {
@@ -51,7 +48,7 @@ export class Authentication {
    */
   public saveToken(token: string): void {
     try {
-      this.storage?.setItem('iot-token', token);
+      this.storage?.setItem('token', token);
     } catch (err) {
       console.warn('Failed to save token:', err);
     }
@@ -62,7 +59,7 @@ export class Authentication {
    */
   public logout(): void {
     try {
-      this.storage?.removeItem('iot-token');
+      this.storage?.removeItem('token');
     } catch (err) {
       console.warn('Failed to remove token:', err);
     }
@@ -94,21 +91,31 @@ export class Authentication {
   }
 
   /**
-   * Perform login operation using provided user credentials.
-   * @param user This is the User object containing user details.
-   * @param passwd This is the password string for the user.
+   * This function handles the Auth API Calls given the provided endpoint.
+   * @param endpoint This is a simple string endpoint off of the base /api/ endpoint location.
+   * @param user This is the user class object that contains a name and email for registration.
+   * @param passwd This is the users password as plain text.
    */
-  public login(user: User, passwd: string): void {
-    this.iotDataService.login(user, passwd).subscribe({
-      next: (value: any) => {
-        if(value){
-          this.authResp.token = value;
-          this.saveToken(this.authResp.token);
-        }
-      },
-      error: (error: any) => {
-        console.log(`Error: ${error}`);
-      }
-    })
+  handleAuthAPICall(endpoint: string, user: User, passwd: string): Observable<string> {
+    let formData = {
+      name: user.name,
+      email: user.email,
+      password: passwd
+    };
+
+    return this.http.post<string>(`${this.baseURL}/${endpoint}`, formData);
+  }
+
+  /**
+   * This function is a wrap for the API auth handler to the login end point.
+   * @param user This is a user class object containing a name and email.
+   * @param passwd This is the users plain text password.
+   */
+  login(user: User, passwd: string): Observable<string> {
+    return this.handleAuthAPICall('login', user, passwd).pipe(
+      tap((res: string) => {
+        this.saveToken(res);
+      })
+    );
   }
 }

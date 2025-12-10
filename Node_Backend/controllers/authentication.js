@@ -37,9 +37,10 @@ async function register(req, res) {
  * This function handles the login authentication.
  * @param req Express provided requirements. Used to parse the email and password.
  * @param res Express provided response. This is packed with a status and json data.
+ * @param next Express next function in the middleware chain.
  * @return {Promise<void>} Returning a status code 200/400/401/404 packed in an express response. Packed with JSON data.
  */
-async function login(req, res) {
+async function login(req, res, next) {
     // Error trap for not filling out all fields.
     if (!req.body.email || !req.body.password) {
         return res.status(400).json({message: 'All fields are required.'});
@@ -52,14 +53,14 @@ async function login(req, res) {
             // Error in authentication process.
             return res.status(404).json(err);
         }
-
+        
         if (user) { // Auth successful
             const token = user.generateJWT();
             return res.status(200).json(token);
         } else { // Auth failed
             return res.status(401).json(info);
         }
-    }) (req, res);
+    }) (req, res, next);
 }
 
 module.exports = { register, login };

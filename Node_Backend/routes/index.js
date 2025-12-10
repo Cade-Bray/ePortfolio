@@ -42,8 +42,8 @@ function authenticateJWT(req, res, next) {
     });
 }
 
-router.route('/register').post(authCtrl.register);
-router.route('/login').post(authCtrl.login);
+router.post('/register', authCtrl.register);
+router.post('/login', authCtrl.login);
 
 // TODO: consider adding jwt authentication to the GET request
 router

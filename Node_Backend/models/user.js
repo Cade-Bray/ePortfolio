@@ -18,14 +18,14 @@ const userSchema = new mongoose.Schema({
 
 // Method to set the password on this record.
 userSchema.methods.setPassword = function(password){
-    this.salt = crypto.randomBytes(16).toString('hex');
+    this.salt = crypto.randomBytes(16).toString();
     this.hash = crypto.pbkdf2Sync(
         password,
         this.salt,
         1000,
         64,
         'sha512'
-    ).toString('hex');
+    ).toString();
 };
 
 // Method to validate the password on this record against the hash
@@ -36,7 +36,7 @@ userSchema.methods.validPassword = function (password) {
         1000,
         64,
         'sha512'
-    ).toString('hex');
+    ).toString();
     return this.hash === hash;
 };
 

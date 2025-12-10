@@ -14,7 +14,7 @@ passport.use(
                 return done(
                     null,
                     false,
-                    {message: 'Incorrect username.'}
+                    {message: 'Incorrect Credentials'}
                 );
             }
 
@@ -23,7 +23,7 @@ passport.use(
                 return done(
                     null,
                     false,
-                    {message: 'Incorrect Password.'}
+                    {message: 'Incorrect Credentials'}
                 );
             }
 
@@ -32,3 +32,5 @@ passport.use(
         }
     )
 );
+
+module.exports = passport;
