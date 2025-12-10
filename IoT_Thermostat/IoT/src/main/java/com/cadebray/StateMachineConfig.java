@@ -106,7 +106,7 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
              */
             @Override
             public void stateChanged(State<States, Events> from, State<States, Events> to) {
-                handle(from == null ? null : from.getId(), to == null ? null : to.getId());
+                handle(from == null ? null : from.getId(), to == null ? States.OFF : to.getId());
             }
         };
     }
