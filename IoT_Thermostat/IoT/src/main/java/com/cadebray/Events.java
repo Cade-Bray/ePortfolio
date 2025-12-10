@@ -1,4 +1,6 @@
 package com.cadebray;
 public enum Events {
-    BUTTON_PRESS
+    BUTTON_CYCLE,
+    BUTTON_RAISE,
+    BUTTON_LOWER
 }
