@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
  * when buttons are pressed.
  */
 @Component
-public class GpioButtonServiceComponent {
+public class GpioButtonService {
     private final Context pi4j;
     private final StateMachine<States, Events> stateMachine;
     private DigitalInput cycleButton;
@@ -31,7 +31,7 @@ public class GpioButtonServiceComponent {
      * @param pi4j The Pi4J context for GPIO interactions
      * @param stateMachine The state machine to send events to
      */
-    public GpioButtonServiceComponent(Context pi4j, StateMachine<States, Events> stateMachine) {
+    public GpioButtonService(Context pi4j, StateMachine<States, Events> stateMachine) {
         this.pi4j = pi4j;
         this.stateMachine = stateMachine;
     }
