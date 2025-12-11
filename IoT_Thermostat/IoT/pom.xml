@@ -31,10 +31,24 @@
             <artifactId>spring-statemachine-starter</artifactId>
         </dependency>
 
+        <!-- Spring Boot Starter Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Spring Boot REST Client -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-restclient</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <!-- Spring WebFlux for reactive programming -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
         </dependency>
 
         <!-- JUnit dependency for testing -->
@@ -59,12 +73,14 @@
             <version>${pi4j.version}</version>
         </dependency>
 
+        <!-- GPIO Provider -->
         <dependency>
             <groupId>com.pi4j</groupId>
             <artifactId>pi4j-plugin-gpiod</artifactId>
             <version>${pi4j.version}</version>
         </dependency>
 
+        <!-- Linux FS Provider -->
         <dependency>
             <groupId>com.pi4j</groupId>
             <artifactId>pi4j-plugin-linuxfs</artifactId>
