@@ -1,3 +1,38 @@
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+  <!-- Navbar brand title-->
+  <a class="navbar-brand mx-3" href="#">Thermostat Portal</a>
+
+  <!-- Navbar toggler button for smaller screens -->
+  <button
+    class="navbar-toggler mx-3"
+    type="button"
+    data-bs-toggle="collapse"
+    data-bs-target="#navbarContent"
+    aria-controls="navbarContent"
+    aria-expanded="false"
+    aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <!-- Navbar items -->
+  <div class="collapse navbar-collapse" id="navbarContent">
+    <ul class="navbar-nav me-auto">
+      <li class="nav-item active">
+        <a class="nav-link mx-3" [routerLink]="['/home']">Home</a>
+      </li>
+      @if (authenticate.isLoggedIn()) {
+        <li class="navbar-nav me-auto">
+          <a class="nav-link mx-3" (click)="logout()">Logout</a>
+        </li>
+      } @else {
+        <li class="navbar-nav me-auto">
+          <a class="nav-link mx-3" [routerLink]="['/login']">Login</a>
+        </li>
+      }
+
+    </ul>
+  </div>
+</nav>
 <div class="container-fluid row">
   <router-outlet class="flex-fill"/>
 </div>

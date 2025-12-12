@@ -56,7 +56,7 @@ export class Login implements OnInit{
         next: (res) => {
           if (res) {
             // token already saved by the authentication service
-            this.router.navigate(['']).then(() => {
+            this.router.navigate(['/home']).then(() => {
               console.info('Navigation to home page successful after login.');
             });
           } else {

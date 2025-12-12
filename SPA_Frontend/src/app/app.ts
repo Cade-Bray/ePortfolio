@@ -1,12 +1,21 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {Router, RouterLink, RouterOutlet} from '@angular/router';
+import {Authentication} from './services/authentication';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('Thermostat Portal');
+  constructor(public authenticate: Authentication, private router: Router) {}
+
+  logout(): void{
+    this.authenticate.logout()
+    this.router.navigate(['/login']).then(
+      () => {
+        console.log('User logged out.')
+      });
+  }
 }

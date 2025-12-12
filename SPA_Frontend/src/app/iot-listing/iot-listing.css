@@ -1,0 +1,11 @@
+.btn-color {
+  background-color: #aa00ff;
+  border-color: #aa00ff;
+}
+
+.card-size {
+  max-width: 420px;
+  max-height: 290px;
+  width: 100%;
+  overflow: hidden;
+}
