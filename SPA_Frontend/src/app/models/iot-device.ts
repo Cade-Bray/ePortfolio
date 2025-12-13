@@ -1,8 +1,8 @@
 export interface IoT {
   _id: string, // Mongodb Object ID
   name: string,
-  temp: string,
+  setTemp: number,
+  currentTemp: number,
   lastChecked: Date,
-  status: string,
-  location: string
+  state: string
 }

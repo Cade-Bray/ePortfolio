@@ -84,6 +84,7 @@ export class Authentication {
    * to make sure that the user isLoggedIn.
    * @return User object that contains the email and name of the user
    */
+  // noinspection JSUnusedGlobalSymbols
   public getCurrentUser(): User {
     const token: string = this.getToken();
     const {email, name} = JSON.parse(atob(token.split('.')[1]));

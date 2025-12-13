@@ -1,36 +1,45 @@
 <div class="container">
-  <div class="row">
+  <div class="row mb-0">
     <div>
       <div class="col-12">
         <div class="d-flex align-items-center justify-content-between m-4">
           <h2 class="m-4">Thermostat Management</h2>
-          <button class="btn btn-primary btn-color m-4 float-end" [routerLink]="['/add']">+ Register Device</button>
+          <button class="btn btn-primary btn-color m-4 float-end" (click)="registerDevice()">+ Register Device</button>
         </div>
+        <hr class="border-2 border-top">
       </div>
     </div>
   </div>
-  <div class="row">
-    <hr class="border-2 border-top">
+  <div class="row g-2 mt-0 justify-content-center">
     <!-- IoT Device cards will be rendered here -->
-    <div>
-      <div class="card card-size">
-        <div class="card-header">Living Room</div>
-        <div class="card-body text-center">
-          <h5 class="card-title">Current State: Heating</h5>
-          <p class="m-1">Actual Temperature: 71.0F</p>
-          <p>Set Temperature: 72.0F</p>
-          <!-- Buttons to increase/decrease temperature -->
-          <div class="d-flex justify-content-center">
-            <button class="btn btn-info ms-5 ms-2 float float-start btn-color text-light">
-              + Incr. Temp
-            </button>
-            <button class="btn btn-info me-5 ms-2 float-end btn-color text-light">
-              - Decr. Temp
-            </button>
+    @for (device of devices; track device._id) {
+      <div class="col-12 col-md-6 col-lg-4 m-3">
+        <div class="card card-size h-100">
+          <div class="card-header">{{device.name}}</div>
+          <div class="card-body text-center">
+            <h5 class="card-title">Current State:
+              <button class="btn btn-info py-0 btn-color text-light" (click)="setState(device)">
+                {{ device.state }}
+              </button>
+            </h5>
+            <p class="m-1">Actual Temperature: {{device.currentTemp}}F</p>
+            <p>Set Temperature: {{device.setTemp}}F</p>
+            <p class="text-muted small">Last Check: {{device.lastChecked | date: 'short'}}</p>
+            <!-- Buttons to increase/decrease temperature -->
+            <div class="d-flex justify-content-center">
+              <button class="btn btn-info ms-5 ms-2 float float-start btn-color text-light"
+                      (click)="increaseTemp(device)">
+                + Incr. Temp
+              </button>
+              <button class="btn btn-info me-5 ms-2 float-end btn-color text-light"
+                      (click)="decreaseTemp(device)">
+                - Decr. Temp
+              </button>
+            </div>
           </div>
+          <div class="card-footer text-muted small text-center">Device ID: {{device._id}}</div>
         </div>
-        <div class="card-footer text-muted small text-center">Device ID: test-IoT-001</div>
       </div>
-    </div>
+    }
   </div>
 </div>

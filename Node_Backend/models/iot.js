@@ -2,9 +2,12 @@ const mongoose = require('mongoose');
 
 // Define the device schema
 const iotDeviceSchema = new mongoose.Schema({
-    id: {type: String, required: true, unique: true},
+    _id: {type: String, required: false, unique: true, index: true},
     name: {type: String, required: true},
     state: {type: String, required: true},
+    currentTemp: {type: Number},
+    setTemp: {type: Number, required: true},
+    lastCheckIn: {type: Date, required: true},
     hash: {type: String, required: true},
     salt: {type: String, required: true},
     ownership: {type: Array}
