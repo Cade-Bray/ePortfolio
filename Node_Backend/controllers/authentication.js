@@ -1,11 +1,21 @@
 const User = require('../models/user');
 const passport = require('passport');
+const { verify } = require("jsonwebtoken");
+
+/**
+ * Decode JWT token to get user information.
+ * @param token JWT token string.
+ * @return {Object} Decoded JWT token containing user information.
+ */
+function decodeToken(token) {
+    return verify(token, process.env.JWT_SECRET);
+}
 
 /**
  * This is the registration function. The request is parsed to create a new user under the schema. The return is JWT.
  * @param req Express request. This is parsed for the name, email, and password provided in plaintext.
  * @param res Express response. This will be packed with a status code 400/200 and a token if applicable.
- * @return {Promise<*>} Express response with a json of a JWT. When the JWT is decoded it contains the user id, email,
+ * @return {Promise<*>} Express response with a JSON of a JWT. When the JWT is decoded it contains the user id, email,
  *                      name, iat, and exp.
  */
 async function register(req, res) {
@@ -29,14 +39,14 @@ async function register(req, res) {
     } else {
         // Return a new user token
         const token = user.generateJWT();
-        return res.status(200).json(token);
+        return res.status(200).json({"token": token, "user": user._id});
     }
 }
 
 /**
  * This function handles the login authentication.
  * @param req Express provided requirements. Used to parse the email and password.
- * @param res Express provided response. This is packed with a status and json data.
+ * @param res Express provided response. This is packed with a status and JSON data.
  * @param next Express next function in the middleware chain.
  * @return {Promise<void>} Returning a status code 200/400/401/404 packed in an express response. Packed with JSON data.
  */
@@ -56,11 +66,11 @@ async function login(req, res, next) {
         
         if (user) { // Auth successful
             const token = user.generateJWT();
-            return res.status(200).json(token);
+            return res.status(200).json({"token": token, "user": user._id});
         } else { // Auth failed
             return res.status(401).json(info);
         }
     }) (req, res, next);
 }
 
-module.exports = { register, login };
+module.exports = { register, login, decodeToken };

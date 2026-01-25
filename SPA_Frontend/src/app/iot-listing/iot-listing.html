@@ -12,18 +12,18 @@
   </div>
   <div class="row g-2 mt-0 justify-content-center">
     <!-- IoT Device cards will be rendered here -->
-    @for (device of devices; track device._id) {
+    @for (device of devices(); track device._id) {
       <div class="col-12 col-md-6 col-lg-4 m-3">
         <div class="card card-size h-100">
           <div class="card-header">{{device.name}}</div>
           <div class="card-body text-center">
             <h5 class="card-title">Current State:
               <button class="btn btn-info py-0 btn-color text-light" (click)="setState(device)">
-                {{ device.state }}
+                {{ device.state.toUpperCase() }}
               </button>
             </h5>
-            <p class="m-1">Actual Temperature: {{device.currentTemp}}F</p>
-            <p>Set Temperature: {{device.setTemp}}F</p>
+            <p class="m-1">Actual Temperature: {{device.currentTemp.toFixed(1)}}F</p>
+            <p>Set Temperature: {{device.setTemp.toFixed(1)}}F</p>
             <p class="text-muted small">Last Check: {{device.lastChecked | date: 'short'}}</p>
             <!-- Buttons to increase/decrease temperature -->
             <div class="d-flex justify-content-center">

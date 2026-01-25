@@ -1,16 +1,41 @@
 const mongoose = require('mongoose');
 const Model = mongoose.model('iot');
+const authCtrl = require('../controllers/authentication');
 
 /**
  * GET - /iot <br>
  * This function lists all the iot devices.
  * @param req Express provided requirements
  * @param res Express provided response.
- * @return {Promise<*>} Returns a packed express response with status code 200/404 with json content.
+ * @return {Promise<*>} Returns a packed express response with status code 200/404 with JSON content.
  */
 async function iotList(req, res) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Authorization header required.' });
+    }
+
+    const parts = authHeader.split(' ');
+    if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
+        return res.status(400).json({ message: 'Malformed Authorization header.' });
+    }
+
+    const token = parts[1];
+    let decoded;
+    try {
+        decoded = authCtrl.decodeToken(token);
+    } catch (err) {
+        console.warn('Token decode failed:', err.message);
+        return res.status(401).json({ message: 'Invalid or expired token.' });
+    }
+
+    const auth_user = decoded && decoded._id ? decoded._id : null;
+    if (!auth_user) {
+        return res.status(401).json({ message: 'No authorized user provided.' });
+    }
+
     const query = await Model
-        .find({})
+        .find({"auth_users": { $in: new mongoose.Types.ObjectId(auth_user) }})
         .exec();
 
     if (!query) {
@@ -79,11 +104,12 @@ async function iotsAddIot(req, res){
  */
 async function iotsUpdateIot(req, res) {
     const query = await Model.findOneAndUpdate(
-        {'code': req.params.iotCode},
+        {'_id': req.params.iotCode},
         {
-            code: req.body.code,
             name: req.body.name,
-            state: req.body.state
+            state: req.body.state,
+            setTemp: req.body.setTemp,
+            lastChecked: new Date()
         }
     ).exec();
 
@@ -92,7 +118,7 @@ async function iotsUpdateIot(req, res) {
         return res.status(400).json(query.error);
     } else {
         // Return the resulting updated document
-        return res.status(201).json(query);
+        return res.status(201).json({message: `IoT device with code ${req.params.iotCode} has been updated.`});
     }
 }
 
@@ -102,8 +128,8 @@ async function iotsUpdateIot(req, res) {
  * @param req Express provided requirements. This is used to grab the iot code from the parameters.
  * @param res Express provided requirements. This is used for the packed response.
  */
-function iotsDeleteIot(req, res) {
-    const query = Model.findOneAndDelete(
+async function iotsDeleteIot(req, res) {
+    const query = await Model.findOneAndDelete(
         {'code': req.params.iotCode}
     ).exec();
 

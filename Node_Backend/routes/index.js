@@ -42,16 +42,17 @@ function authenticateJWT(req, res, next) {
     });
 }
 
+// This is the registration endpoint and login endpoint.
 router.post('/register', authCtrl.register);
 router.post('/login', authCtrl.login);
 
-// TODO: consider adding jwt authentication to the GET request
+// IoT device endpoints
 router
     .route('/iot')
-    .get(stateCtrl.iotList) // GET request for all trips
-    .post(authenticateJWT, stateCtrl.iotsAddIot); // POST request to create a trip
+    .get(authenticateJWT, stateCtrl.iotList) // GET request for all IoT devices
+    .post(authenticateJWT, stateCtrl.iotsAddIot); // POST request to create an IoT device
 
-// TODO: consider adding jwt authentication to the GET request
+// IoT device specific endpoints
 router
     .route('/iot/:iotCode')
     .get(stateCtrl.iotsFindByCode)

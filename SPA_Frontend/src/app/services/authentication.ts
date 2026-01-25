@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 export class Authentication {
 
   // Globals
-  private baseURL = 'http://localhost:3000/api';
+  public baseURL = 'http://localhost:3000/api';
 
   /**
    * Setup storage and service access
@@ -44,7 +44,7 @@ export class Authentication {
 
   /**
    * Save the JWT token to storage.
-   * @param token The JWT token to be saved.
+   * @param token
    */
   public saveToken(token: string): void {
     try {
@@ -72,7 +72,10 @@ export class Authentication {
   public isLoggedIn(): boolean {
     const token: string = this.getToken();
     if (token) {
+      // Decode the token to get its payload and check the expiration
       const payload = JSON.parse(atob(token.split('.')[1]));
+
+      // Check if the token has expired based on the exp field of the token payload
       return payload.exp > (Date.now() / 1000);
     } else {
       return false;
@@ -87,8 +90,10 @@ export class Authentication {
   // noinspection JSUnusedGlobalSymbols
   public getCurrentUser(): User {
     const token: string = this.getToken();
-    const {email, name} = JSON.parse(atob(token.split('.')[1]));
-    return {email, name} as User;
+
+    // Decode the token to extract user information
+    const {_id, email, name} = JSON.parse(atob(token.split('.')[1]));
+    return {_id, email, name} as User;
   }
 
   /**
@@ -97,14 +102,14 @@ export class Authentication {
    * @param user This is the user class object that contains a name and email for registration.
    * @param passwd This is the users password as plain text.
    */
-  handleAuthAPICall(endpoint: string, user: User, passwd: string): Observable<string> {
+  handleAuthAPICall(endpoint: string, user: User, passwd: string): Observable<{token: string, user: string}> {
     let formData = {
       name: user.name,
       email: user.email,
       password: passwd
     };
 
-    return this.http.post<string>(`${this.baseURL}/${endpoint}`, formData);
+    return this.http.post<{token: string, user: string}>(`${this.baseURL}/${endpoint}`, formData);
   }
 
   /**
@@ -112,10 +117,10 @@ export class Authentication {
    * @param user This is a user class object containing a name and email.
    * @param passwd This is the users plain text password.
    */
-  login(user: User, passwd: string): Observable<string> {
+  login(user: User, passwd: string): Observable<{token: string, user: string}> {
     return this.handleAuthAPICall('login', user, passwd).pipe(
-      tap((res: string) => {
-        this.saveToken(res);
+      tap((res) => {
+        this.saveToken(res.token);
       })
     );
   }

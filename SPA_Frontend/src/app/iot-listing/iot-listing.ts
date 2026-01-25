@@ -1,43 +1,57 @@
-import { Component } from '@angular/core';
-import {RouterLink} from '@angular/router';
-import {IoT} from '../models/iot-device';
-import {DatePipe} from '@angular/common';
-import {Subscription} from 'rxjs';
+import { Component, Signal } from '@angular/core';
+import { IoT } from '../models/iot-device';
+import { Authentication } from '../services/authentication';
+import { DatePipe } from '@angular/common';
+import {interval, Observable, startWith, switchMap} from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import {toSignal} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-iot-listing',
   imports: [
-    RouterLink,
     DatePipe
   ],
   templateUrl: './iot-listing.html',
   styleUrl: './iot-listing.css',
 })
 export class IotListing {
-  devices: IoT[];
-  private pollSub?: Subscription;
+  devices: Signal<IoT[]>;
 
-  constructor() {
-    this.devices = this.getDevices();
+  /**
+   * Constructor for IotListing component.
+   */
+  constructor(public authenticate: Authentication, private http: HttpClient) {
+    this.devices = toSignal<IoT[]>(
+      interval(10000).pipe(
+        startWith(0),
+        // Switch to the HTTP request observable
+        // to fetch the devices every 10 seconds
+        // including immediately on subscription
+        switchMap(() => this.getDevices()),
+        // Ensure the initial value is emitted immediately
+        startWith([] as IoT[])
+      ),
+      { requireSync: true }
+    );
   }
 
-  ngOnInit() {
-    // Polling every 10 seconds to update device data
-    this.pollSub = new Subscription();
-    const poller = setInterval(() => {
-      this.devices = this.getDevices();
-    }, 10000);
-    this.pollSub.add({ unsubscribe: () => clearInterval(poller) });
+  /**
+   * Fetch the list of IoT devices.
+   * @returns Array of IoT devices associated with the user as an authorized user.
+   */
+  getDevices(): Observable<IoT[]> {
+    return this.http.get<IoT[]>(`${this.authenticate.baseURL}/iot`, {
+      headers: {
+        Authorization: `Bearer ${this.authenticate.getToken()}`
+      }
+    });
   }
 
-  getDevices() {
-    return [
-      { _id: '1', name: 'Living Room', setTemp: 72.0, currentTemp: 70.0, lastChecked: new Date(), state: 'COOL' },
-      { _id: '2', name: 'Bedroom', setTemp: 68.0, currentTemp: 69.5, lastChecked: new Date(), state: 'HEAT' },
-      { _id: '3', name: 'Kitchen', setTemp: 75.1, currentTemp: 75.0, lastChecked: new Date(), state: 'OFF' }
-    ];
-  }
-
+  /**
+   * Toggle the state of the IoT device between OFF, HEAT, and COOL.
+   * @param device The IoT device to update
+   * @returns void
+   */
   setState(device: IoT) {
     if (device.state == "OFF") {
       device.state = "HEAT";
@@ -47,21 +61,58 @@ export class IotListing {
       device.state = "OFF";
     }
 
-    // TODO: Call backend API to update device state
+    this.updateDevice(device);
   }
 
+  /**
+   * Increase the set temperature of the IoT device by 0.5 degrees.
+   * @param device The IoT device to update
+   * @returns void
+   */
   increaseTemp(device: IoT) {
     device.setTemp += 0.5;
 
-    // TODO: Call backend API to update device temperature
+    this.updateDevice(device);
   }
 
+  /**
+   * Decrease the set temperature of the IoT device by 0.5 degrees.
+   * @param device The IoT device to update
+   * @returns void
+   */
   decreaseTemp(device: IoT) {
     device.setTemp -= 0.5;
 
-    // TODO: Call backend API to update device temperature
+    this.updateDevice(device);
   }
 
+  /**
+   * Send updated device settings to the backend API.
+   * @param device The IoT device to update
+   * @returns void
+   */
+  updateDevice(device: IoT) {
+    this.http.put(`${this.authenticate.baseURL}/iot/${device._id}`,
+      { name: device.name, state: device.state, setTemp: device.setTemp },
+      {
+        headers: {
+          Authorization: `Bearer ${this.authenticate.getToken()}`
+        }
+      }
+    ).subscribe({
+      next: () => {
+        console.log('Device state updated successfully');
+      },
+      error: (err) => {
+        console.error('Error updating device state:', err);
+      }
+    });
+  }
+
+  /**
+   * Register a new IoT device for the user.
+   * @returns void
+   */
   registerDevice() {
     // TODO: Call backend API to register a new device
   }
