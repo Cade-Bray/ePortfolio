@@ -35,7 +35,7 @@ async function iotList(req, res) {
     }
 
     const query = await Model
-        .find({"auth_users": { $in: new mongoose.Types.ObjectId(auth_user) }})
+        .find({"auth_users": { $in: [new mongoose.Types.ObjectId(auth_user)]}})
         .exec();
 
     if (!query) {
