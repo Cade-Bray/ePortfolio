@@ -6,6 +6,7 @@ import com.pi4j.io.gpio.digital.DigitalStateChangeListener;
 import com.pi4j.io.gpio.digital.PullResistance;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
@@ -19,11 +20,11 @@ import reactor.core.publisher.Mono;
 @Component
 public class GpioButtonService {
     private final Context pi4j;
-    private final StateMachine<States, Events> stateMachine;
     private DigitalInput cycleButton;
     private DigitalInput raiseButton;
     private DigitalInput lowerButton;
     private DigitalStateChangeListener buttonListener;
+    private final ObjectFactory<StateMachine<States, Events>> stateMachineFactory;
 
     /**
      * Constructor for GpioButtonServiceComponent. This component manages GPIO buttons
@@ -31,9 +32,17 @@ public class GpioButtonService {
      * @param pi4j The Pi4J context for GPIO interactions
      * @param stateMachine The state machine to send events to
      */
-    public GpioButtonService(Context pi4j, StateMachine<States, Events> stateMachine) {
+    public GpioButtonService(Context pi4j, ObjectFactory<StateMachine<States, Events>> stateMachine) {
         this.pi4j = pi4j;
-        this.stateMachine = stateMachine;
+        stateMachineFactory = stateMachine;
+    }
+
+    /**
+     * Get the state machine instance from the factory.
+     * @return The state machine instance
+     */
+    private StateMachine<States, Events> getStateMachine() {
+        return stateMachineFactory.getObject();
     }
 
     /**
@@ -57,19 +66,19 @@ public class GpioButtonService {
             // Determine which button was pressed and create corresponding event
             Events payload;
             String id = event.source().id();
-            if ("button-cycle".equals(id)) {
-                payload = Events.BUTTON_CYCLE;
-            } else if ("button-raise".equals(id)) {
-                payload = Events.BUTTON_RAISE;
-            } else if ("button-lower".equals(id)) {
-                payload = Events.BUTTON_LOWER;
-            } else {
-                return; // Unknown button, ignore it
+            switch (id) {
+                case "button-cycle" -> payload = Events.BUTTON_CYCLE;
+                case "button-raise" -> payload = Events.BUTTON_RAISE;
+                case "button-lower" -> payload = Events.BUTTON_LOWER;
+                case null, default -> {
+                    return; // Unknown button, ignore it
+                }
             }
 
             // Build and send the event to the state machine. Uses msg and Mono for reactive handling.
             Message<Events> msg = MessageBuilder.withPayload(payload).build();
-            stateMachine.sendEvent(Mono.just(msg)).subscribe(
+
+            getStateMachine().sendEvent(Mono.just(msg)).subscribe(
                     null,
                     error -> System.err.println("Error sending event to state machine: " + error),
                     () -> System.out.println("Event " + payload + " sent to state machine.")

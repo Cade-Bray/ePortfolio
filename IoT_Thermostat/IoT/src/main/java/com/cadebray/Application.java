@@ -18,7 +18,7 @@ public class Application {
      * Main method to start the Spring Boot application.
      * @param args Command-line arguments
      */
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
@@ -46,6 +46,7 @@ public class Application {
     /**
      * Create the AHT20 sensor bean.
      * This bean will handle interactions with the AHT20 temperature and humidity sensor.
+     * TODO: I don't think I need this as a bean, but leaving for now.
      * @return The initialized AHT20 instance
      */
     @Bean

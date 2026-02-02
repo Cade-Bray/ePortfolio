@@ -1,4 +1,5 @@
 package com.cadebray;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateMachine;
@@ -17,12 +18,13 @@ import java.util.EnumSet;
  * This class defines the states, events, transitions, and listeners for the state machine.
  * Logic for handling state transitions and associated actions is also included here.
  */
+@SuppressWarnings("unused") // Suppress unused warnings for Spring configuration classes TODO remove before release
 @Configuration
 @EnableStateMachine
 public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States, Events> {
     private final ThermostatProperties thermostatProperties;
     private final LedService ledService;
-    private final StateMachine<States, Events> stateMachine;
+    private final ObjectFactory<StateMachine<States, Events>> stateMachineFactory;
 
     /**
      * Constructor for StateMachineConfig
@@ -31,10 +33,10 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * @param stateMachine This is the StateMachine instance
      */
     public StateMachineConfig(LedService ledService, ThermostatProperties thermostatProperties,
-                              StateMachine<States, Events> stateMachine) {
+                              ObjectFactory<StateMachine<States, Events>> stateMachine) {
         this.ledService = ledService;
         this.thermostatProperties = thermostatProperties;
-        this.stateMachine = stateMachine;
+        this.stateMachineFactory = stateMachine;
     }
 
     /**
@@ -88,6 +90,61 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
             .source(States.HEAT)
             .target(States.OFF)
             .event(Events.BUTTON_CYCLE);
+
+        // Handle raise/lower events as internal transitions (no state change) so setpoint updates occur
+        // OFF
+        transitions
+            .withInternal()
+            .source(States.OFF)
+            .event(Events.BUTTON_RAISE)
+            .action(ctx -> {
+                double newVal = incrementSetpoint();
+                System.out.println("Setpoint incremented (OFF) -> " + newVal);
+            })
+            .and()
+            .withInternal()
+            .source(States.OFF)
+            .event(Events.BUTTON_LOWER)
+            .action(ctx -> {
+                double newVal = decrementSetpoint();
+                System.out.println("Setpoint decremented (OFF) -> " + newVal);
+            });
+
+        // COOL
+        transitions
+            .withInternal()
+            .source(States.COOL)
+            .event(Events.BUTTON_RAISE)
+            .action(ctx -> {
+                double newVal = incrementSetpoint();
+                System.out.println("Setpoint incremented (COOL) -> " + newVal);
+            })
+            .and()
+            .withInternal()
+            .source(States.COOL)
+            .event(Events.BUTTON_LOWER)
+            .action(ctx -> {
+                double newVal = decrementSetpoint();
+                System.out.println("Setpoint decremented (COOL) -> " + newVal);
+            });
+
+        // HEAT
+        transitions
+            .withInternal()
+            .source(States.HEAT)
+            .event(Events.BUTTON_RAISE)
+            .action(ctx -> {
+                double newVal = incrementSetpoint();
+                System.out.println("Setpoint incremented (HEAT) -> " + newVal);
+            })
+            .and()
+            .withInternal()
+            .source(States.HEAT)
+            .event(Events.BUTTON_LOWER)
+            .action(ctx -> {
+                double newVal = decrementSetpoint();
+                System.out.println("Setpoint decremented (HEAT) -> " + newVal);
+            });
     }
 
     /**
@@ -157,7 +214,7 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * state machine cannot directly access it.
      * @return The current thermostat setpoint
      */
-    public int getSetpoint() {
+    public double getSetpoint() {
         return thermostatProperties.getSetpoint();
     }
 
@@ -165,7 +222,7 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * Decrement the thermostat setpoint by 1 degree
      * @return The new thermostat setpoint
      */
-    public int decrementSetpoint() {
+    public double decrementSetpoint() {
         return thermostatProperties.decrementSetpoint();
     }
 
@@ -173,8 +230,12 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * Increment the thermostat setpoint by 1 degree
      * @return The new thermostat setpoint
      */
-    public int incrementSetpoint() {
+    public double incrementSetpoint() {
         return thermostatProperties.incrementSetpoint();
+    }
+
+    private StateMachine<States, Events> getStateMachine() {
+        return stateMachineFactory.getObject();
     }
 
     /**
@@ -182,7 +243,8 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * This can be called periodically to ensure the LED reflects the current state.
      */
     private void refreshLedState() {
-        States currentState = stateMachine.getState().getId();
+        // Get the current state from the state machine
+        States currentState = getStateMachine().getState().getId();
         switch (currentState) {
             case COOL -> ledService.onEnterCool();
             case HEAT -> ledService.onEnterHeat();

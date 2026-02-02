@@ -5,12 +5,14 @@ import com.pi4j.io.gpio.digital.DigitalOutputConfig;
 import com.pi4j.io.gpio.digital.DigitalState;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Service to manage LED indicators for thermostat states.
@@ -21,22 +23,25 @@ public class LedService {
     private final Context pi4j;
     private final AHT20 aht20;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final ThermostatProperties thermostatProperties;
+    private final ObjectFactory<StateMachine<States, Events>> stateMachineFactory;
     private DigitalOutput redLed;
     private DigitalOutput blueLed;
     private ScheduledFuture<?> pulseTask;
-
-    // Thermostat setpoint temperature. Uses @Value to inject from application properties.
-    @Value("${thermostat.setpoint:72}")
-    private int setpoint;
+    private final AtomicBoolean pulsing = new AtomicBoolean(false);
+    private final Object pulseLock = new Object();
 
     /**
      * Constructor for LedService.
      * @param pi4j Pi4J Context for GPIO interactions
      * @param aht20 AHT20 sensor for temperature readings
      */
-    public LedService(Context pi4j, AHT20 aht20) {
+    public LedService(Context pi4j, AHT20 aht20, ThermostatProperties thermostatProperties,
+                      ObjectFactory<StateMachine<States, Events>> stateMachineFactory) {
+        this.thermostatProperties = thermostatProperties;
         this.pi4j = pi4j;
         this.aht20 = aht20;
+        this.stateMachineFactory = stateMachineFactory;
     }
 
     /**
@@ -86,8 +91,10 @@ public class LedService {
      */
     public synchronized void setOff() {
         stopPulse();
-        redLed.low();
-        blueLed.low();
+        synchronized (pulseLock) {
+            if (redLed != null) redLed.low();
+            if (blueLed != null) blueLed.low();
+        }
     }
 
     /**
@@ -95,19 +102,18 @@ public class LedService {
      */
     public synchronized void onEnterHeat() {
         stopPulse();
-        double tempF = 0;
+        double tempF = Double.NaN;
+        double setpoint = thermostatProperties.getSetpoint();
         try {
             tempF = aht20.readSensor()[1];
+            System.out.println("Heat check: temp=" + tempF + " setpoint=" + setpoint);
         } catch (Exception e) {
             System.err.println("Error reading temperature: " + e.getMessage());
         }
-        if (tempF >= setpoint) {
-            redLed.high();
-        } else {
-            redLed.low();
-            startPulse(redLed);
+        updateHeatForTemp(tempF, setpoint);
+        synchronized (pulseLock) {
+            if (blueLed != null) blueLed.low();
         }
-        blueLed.low();
     }
 
     /**
@@ -116,21 +122,18 @@ public class LedService {
      */
     public synchronized void onEnterCool() {
         stopPulse();
-        double tempF = 0;
+        double tempF = Double.NaN;
+        double setpoint = thermostatProperties.getSetpoint();
         try {
             tempF = aht20.readSensor()[1];
+            System.out.println("Cool check: temp=" + tempF + " setpoint=" + setpoint);
         } catch (Exception e) {
             System.err.println("Error reading temperature: " + e.getMessage());
         }
-        if (tempF <= setpoint) {
-            // solid blue
-            blueLed.high();
-        } else {
-            // pulse blue
-            blueLed.low();
-            startPulse(blueLed);
+        updateCoolForTemp(tempF, setpoint);
+        synchronized (pulseLock) {
+            if (redLed != null) redLed.low();
         }
-        redLed.low();
     }
 
     /**
@@ -138,25 +141,108 @@ public class LedService {
      * @param led The DigitalOutput LED to pulse
      */
     private void startPulse(DigitalOutput led) {
+        if (led == null) return;
+        // stop any existing pulse first
         stopPulse();
+        pulsing.set(true);
+        // schedule with an initial delay to reduce immediate race with subsequent state changes
         pulseTask = scheduler.scheduleAtFixedRate(() -> {
-            try {
-                if (led.state().isHigh()) {
-                    led.low();
-                } else {
-                    led.high();
-                }
-            } catch (Exception ignored) {}
-        }, 0, 600, TimeUnit.MILLISECONDS);
+            if (!pulsing.get()) return;
+            synchronized (pulseLock) {
+                try {
+                    if (led.state().isHigh()) {
+                        led.low();
+                    } else {
+                        led.high();
+                    }
+                } catch (Exception ignored) {}
+            }
+        }, 600, 600, TimeUnit.MILLISECONDS);
     }
 
     /**
      * Stop any ongoing pulsing of LEDs.
      */
     private void stopPulse() {
+        // clear flag first so any running task will skip toggling
+        pulsing.set(false);
         if (pulseTask != null) {
-            pulseTask.cancel(true);
+            try {
+                pulseTask.cancel(true);
+            } catch (Exception ignored) {}
             pulseTask = null;
+        }
+    }
+
+    /**
+     * Event listener for temperature crossing events.
+     * @param measuredTemp The measured temperature
+     */
+    public synchronized void onTemperatureCrossing(double measuredTemp) {
+        double setpoint = thermostatProperties.getSetpoint();
+        StateMachine<States, Events> sm = stateMachineFactory.getObject();
+        if (sm.getState() == null) return;
+        States current = sm.getState().getId();
+        switch (current) {
+            case HEAT -> updateHeatForTemp(measuredTemp, setpoint);
+            case COOL -> updateCoolForTemp(measuredTemp, setpoint);
+            default -> setOff();
+        }
+    }
+
+    /**
+     * Update the heating LED based on the current temperature and setpoint.
+     * @param tempF Current temperature in Fahrenheit
+     * @param setpoint Desired temperature setpoint
+     */
+    private void updateHeatForTemp(double tempF, double setpoint) {
+        if (!Double.isNaN(tempF)) {
+            if (tempF >= setpoint) {
+                // reached or above setpoint -> steady RED on
+                stopPulse();
+                synchronized (pulseLock) {
+                    if (redLed != null) redLed.high();
+                }
+            } else {
+                // below setpoint -> pulse RED
+                synchronized (pulseLock) {
+                    if (redLed != null) redLed.low();
+                    startPulse(redLed);
+                }
+            }
+        } else {
+            synchronized (pulseLock) {
+                if (redLed != null) redLed.low();
+                stopPulse();
+            }
+        }
+    }
+
+    /**
+     * Update the cooling LED based on the current temperature and setpoint.
+     * @param tempF Current temperature in Fahrenheit
+     * @param setpoint Desired temperature setpoint
+     */
+    private void updateCoolForTemp(double tempF, double setpoint) {
+        if (!Double.isNaN(tempF)) {
+            if (tempF <= setpoint) {
+                // reached or below setpoint -> steady BLUE on
+                stopPulse();
+                synchronized (pulseLock) {
+                    if (blueLed != null) blueLed.high();
+                }
+            } else {
+                // above setpoint -> pulse BLUE
+                synchronized (pulseLock) {
+                    if (blueLed != null) blueLed.low();
+                    startPulse(blueLed);
+                }
+            }
+        } else {
+            synchronized (pulseLock) {
+                if (blueLed != null) blueLed.low();
+                stopPulse();
+            }
         }
     }
 }
