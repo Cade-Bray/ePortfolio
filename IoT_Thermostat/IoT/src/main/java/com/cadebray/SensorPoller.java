@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class sensorPoller {
+public class SensorPoller {
     private final AHT20 aht20;
     private final ApplicationEventPublisher publisher;
 
@@ -14,7 +14,7 @@ public class sensorPoller {
      * @param aht20 This is the sensor itself.
      * @param publisher This is the publisher to be used for publishing events.
      */
-    public sensorPoller(AHT20 aht20, ApplicationEventPublisher publisher) {
+    public SensorPoller(AHT20 aht20, ApplicationEventPublisher publisher) {
         this.aht20 = aht20;
         this.publisher = publisher;
     }
