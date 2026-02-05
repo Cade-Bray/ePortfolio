@@ -178,20 +178,43 @@ public class LedService {
 
     /**
      * Event listener for temperature crossing events.
-     * @param measuredTemp The measured temperature
+     * @param reading The measured temperature
      */
     @EventListener
-    public synchronized void onTemperatureCrossing(double measuredTemp) {
+    public synchronized void onTemperatureCrossing(TempReadEvent reading) {
+        double temp = reading.getFahrenheit();
         double setpoint = thermostatProperties.getSetpoint();
         StateMachine<States, Events> sm = stateMachineFactory.getObject();
         if (sm.getState() == null) return;
         States current = sm.getState().getId();
+        DigitalOutput light = (current == States.HEAT) ? redLed : (current == States.COOL) ? blueLed : null;
+        if (light == null) return;
 
-        if (current == States.HEAT) {
-            updateHeatForTemp(measuredTemp, setpoint);
-        } else if (current == States.COOL) {
-            updateCoolForTemp(measuredTemp, setpoint);
+        if (temp >= setpoint) {
+            // reached or above setpoint -> steady RED on
+            stopPulse();
+            synchronized (pulseLock) {
+                light.high();
+            }
+        } else {
+            // below setpoint -> pulse RED
+            synchronized (pulseLock) {
+                light.low();
+                startPulse(light);
+            }
         }
+
+        /*
+        if (current == States.HEAT) {
+            updateHeatForTemp(temp, setpoint);
+        } else if (current == States.COOL) {
+            updateCoolForTemp(temp, setpoint);
+        }
+         */
+    }
+
+    private void updateForTemp(){
+
     }
 
     /**
