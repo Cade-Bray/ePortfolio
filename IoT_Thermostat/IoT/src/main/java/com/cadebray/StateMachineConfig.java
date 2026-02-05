@@ -188,7 +188,6 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * Actions to perform when entering the OFF state
      */
     private void onEnterOff() {
-        System.out.println("Entering OFF state actions.");
         ledService.setOff();
     }
 
@@ -196,7 +195,6 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * Actions to perform when entering the COOL state
      */
     private void onEnterCool() {
-        System.out.println("Entering COOL state actions.");
         ledService.onEnterCool();
     }
 
@@ -204,7 +202,6 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * Actions to perform when entering the HEAT state
      */
     private void onEnterHeat() {
-        System.out.println("Entering HEAT state actions.");
         ledService.onEnterHeat();
     }
 

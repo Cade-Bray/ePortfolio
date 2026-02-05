@@ -1,4 +1,5 @@
 package com.cadebray;
+
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.gpio.digital.DigitalOutputConfig;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -103,38 +103,39 @@ public class LedService {
      * Handle entering the heating state. Turns on red LED or pulses it based on temperature.
      */
     public synchronized void onEnterHeat() {
+        double[] sensor;
         stopPulse();
-        double tempF = Double.NaN;
         double setpoint = thermostatProperties.getSetpoint();
         try {
-            tempF = aht20.readSensor()[1];
-            System.out.println("Heat check: temp=" + tempF + " setpoint=" + setpoint);
+            sensor = aht20.readSensor();
+            System.out.println("Heat check: temp=" + sensor[1] + " setpoint=" + setpoint);
+            updateOnEvent(new SensorReadEvent(sensor));
         } catch (Exception e) {
             System.err.println("Error reading temperature: " + e.getMessage());
-        }
-        updateHeatForTemp(tempF, setpoint);
-        synchronized (pulseLock) {
-            if (blueLed != null) blueLed.low();
+        } finally {
+            synchronized (pulseLock) {
+                if (blueLed != null) blueLed.low();
+            }
         }
     }
 
     /**
      * Handle entering the cooling state. Turns on blue LED or pulses it based on temperature.
-     * TODO: Refactor duplicate code with onEnterHeat(). See if I can combine them into a single function.
      */
     public synchronized void onEnterCool() {
+        double[] sensor;
         stopPulse();
-        double tempF = Double.NaN;
         double setpoint = thermostatProperties.getSetpoint();
         try {
-            tempF = aht20.readSensor()[1];
-            System.out.println("Cool check: temp=" + tempF + " setpoint=" + setpoint);
+            sensor = aht20.readSensor();
+            System.out.println("Cool check: temp=" + sensor[1] + " setpoint=" + setpoint);
+            updateOnEvent(new SensorReadEvent(sensor));
         } catch (Exception e) {
             System.err.println("Error reading temperature: " + e.getMessage());
-        }
-        updateCoolForTemp(tempF, setpoint);
-        synchronized (pulseLock) {
-            if (redLed != null) redLed.low();
+        } finally {
+            synchronized (pulseLock) {
+                if (redLed != null) redLed.low();
+            }
         }
     }
 
@@ -178,74 +179,35 @@ public class LedService {
 
     /**
      * Event listener for temperature crossing events.
-     * @param measuredTemp The measured temperature
+     * @param reading The measured temperature
      */
     @EventListener
-    public synchronized void onTemperatureCrossing(double measuredTemp) {
+    public synchronized void updateOnEvent(SensorReadEvent reading) {
+        double temp = reading.getFahrenheit();
         double setpoint = thermostatProperties.getSetpoint();
         StateMachine<States, Events> sm = stateMachineFactory.getObject();
         if (sm.getState() == null) return;
         States current = sm.getState().getId();
+        DigitalOutput light = (current == States.HEAT) ? redLed : (current == States.COOL) ? blueLed : null;
+        if (light == null) return;
 
-        if (current == States.HEAT) {
-            updateHeatForTemp(measuredTemp, setpoint);
-        } else if (current == States.COOL) {
-            updateCoolForTemp(measuredTemp, setpoint);
-        }
-    }
-
-    /**
-     * Update the heating LED based on the current temperature and setpoint.
-     * @param tempF Current temperature in Fahrenheit
-     * @param setpoint Desired temperature setpoint
-     */
-    private void updateHeatForTemp(double tempF, double setpoint) {
-        if (!Double.isNaN(tempF)) {
-            if (tempF >= setpoint) {
-                // reached or above setpoint -> steady RED on
-                stopPulse();
-                synchronized (pulseLock) {
-                    if (redLed != null) redLed.high();
-                }
-            } else {
-                // below setpoint -> pulse RED
-                synchronized (pulseLock) {
-                    if (redLed != null) redLed.low();
-                    startPulse(redLed);
-                }
+        if (temp >= setpoint && current == States.HEAT) {
+            // reached or above setpoint and heat state -> steady light on
+            stopPulse();
+            synchronized (pulseLock) {
+                light.high();
+            }
+        } else if (temp <= setpoint && current == States.COOL) {
+            // reached or above setpoint and cool state -> steady light on
+            stopPulse();
+            synchronized (pulseLock) {
+                light.high();
             }
         } else {
+            // below setpoint -> pulse light
             synchronized (pulseLock) {
-                if (redLed != null) redLed.low();
-                stopPulse();
-            }
-        }
-    }
-
-    /**
-     * Update the cooling LED based on the current temperature and setpoint.
-     * @param tempF Current temperature in Fahrenheit
-     * @param setpoint Desired temperature setpoint
-     */
-    private void updateCoolForTemp(double tempF, double setpoint) {
-        if (!Double.isNaN(tempF)) {
-            if (tempF <= setpoint) {
-                // reached or below setpoint -> steady BLUE on
-                stopPulse();
-                synchronized (pulseLock) {
-                    if (blueLed != null) blueLed.high();
-                }
-            } else {
-                // above setpoint -> pulse BLUE
-                synchronized (pulseLock) {
-                    if (blueLed != null) blueLed.low();
-                    startPulse(blueLed);
-                }
-            }
-        } else {
-            synchronized (pulseLock) {
-                if (blueLed != null) blueLed.low();
-                stopPulse();
+                light.low();
+                startPulse(light);
             }
         }
     }
