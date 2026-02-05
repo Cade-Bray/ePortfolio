@@ -109,6 +109,7 @@ public class LedService {
         try {
             sensor = aht20.readSensor();
             System.out.println("Heat check: temp=" + sensor[1] + " setpoint=" + setpoint);
+            // Simulating a sensor event to update lighting because we just entered a new state.
             updateOnEvent(new SensorReadEvent(sensor));
         } catch (Exception e) {
             System.err.println("Error reading temperature: " + e.getMessage());
@@ -129,6 +130,7 @@ public class LedService {
         try {
             sensor = aht20.readSensor();
             System.out.println("Cool check: temp=" + sensor[1] + " setpoint=" + setpoint);
+            // Simulating a sensor event to update lighting because we just entered a new state.
             updateOnEvent(new SensorReadEvent(sensor));
         } catch (Exception e) {
             System.err.println("Error reading temperature: " + e.getMessage());
