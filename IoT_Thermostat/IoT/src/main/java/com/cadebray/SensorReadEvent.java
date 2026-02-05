@@ -8,14 +8,26 @@ package com.cadebray;
 @SuppressWarnings("unused")
 public record SensorReadEvent(double[] reading) {
 
+    /**
+     * Get the humidity reading from the event
+     * @return double value representing the percentage of humidity.
+     */
     public double getHumidity() {
         return reading[0];
     }
 
+    /**
+     * Get the Fahrenheit value from the most recent reading.
+     * @return double value representing the Fahrenheit reading
+     */
     public double getFahrenheit() {
         return reading[1];
     }
 
+    /**
+     * Get the Celsius value from the most recent reading.
+     * @return double value representing the Celsius reading
+     */
     public double getCelsius() {
         return reading[2];
     }
