@@ -206,16 +206,4 @@ public class LCDisplay {
         pinD7.state(((nibble & 0x08) != 0) ? DigitalState.HIGH : DigitalState.LOW);
         pulseEnable();
     }
-
-    /**
-     * Demo if ran directly
-     */
-    public static void main(String[] args) throws Exception {
-        var pi4j = com.pi4j.Pi4J.newAutoContext();
-        LCDisplay lcd = new LCDisplay(pi4j);
-        String message = "Hello, World!\nTest";
-        lcd.print(message);
-        Thread.sleep(5000);
-        lcd.clear();
-    }
 }
