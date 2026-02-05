@@ -55,22 +55,4 @@ public class AHT20 {
 
         return new double[] {humidity, temperature_F, temperature_C};
     }
-
-    /**
-     * Main method for testing the AHT20 sensor.
-     * TODO: Remove before integrating into larger application.
-     * @param args Command-line arguments
-     * @throws Exception If an error occurs during I2C communication
-     */
-    public static void main(String[] args) throws Exception {
-        AHT20 aht20 = new AHT20();
-
-        //noinspection InfiniteLoopStatement
-        while (true){
-            var reading = aht20.readSensor();
-            //noinspection BusyWait
-            Thread.sleep(1000);
-            System.out.printf("Humid: %.2f%%  Temp: %.2fF (%.2fC)%n", reading[0], reading[1], reading[2]);
-        }
-    }
 }
