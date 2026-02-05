@@ -8,6 +8,8 @@ import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -178,15 +180,17 @@ public class LedService {
      * Event listener for temperature crossing events.
      * @param measuredTemp The measured temperature
      */
+    @EventListener
     public synchronized void onTemperatureCrossing(double measuredTemp) {
         double setpoint = thermostatProperties.getSetpoint();
         StateMachine<States, Events> sm = stateMachineFactory.getObject();
         if (sm.getState() == null) return;
         States current = sm.getState().getId();
-        switch (current) {
-            case HEAT -> updateHeatForTemp(measuredTemp, setpoint);
-            case COOL -> updateCoolForTemp(measuredTemp, setpoint);
-            default -> setOff();
+
+        if (current == States.HEAT) {
+            updateHeatForTemp(measuredTemp, setpoint);
+        } else if (current == States.COOL) {
+            updateCoolForTemp(measuredTemp, setpoint);
         }
     }
 
