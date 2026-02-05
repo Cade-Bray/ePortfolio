@@ -9,7 +9,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -181,7 +181,7 @@ public class LedService {
      * @param reading The measured temperature
      */
     @EventListener
-    public synchronized void onTemperatureCrossing(TempReadEvent reading) {
+    public synchronized void onTemperatureCrossing(SensorReadEvent reading) {
         double temp = reading.getFahrenheit();
         double setpoint = thermostatProperties.getSetpoint();
         StateMachine<States, Events> sm = stateMachineFactory.getObject();
