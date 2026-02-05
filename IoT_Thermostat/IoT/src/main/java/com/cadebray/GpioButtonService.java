@@ -80,8 +80,7 @@ public class GpioButtonService {
 
             getStateMachine().sendEvent(Mono.just(msg)).subscribe(
                     null,
-                    error -> System.err.println("Error sending event to state machine: " + error),
-                    () -> System.out.println("Event " + payload + " sent to state machine.")
+                    error -> System.err.println("Error sending event to state machine: " + error)
             );
         };
 
