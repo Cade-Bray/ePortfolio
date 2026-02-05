@@ -231,6 +231,10 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
         return thermostatProperties.incrementSetpoint();
     }
 
+    /**
+     * Returns the state machine factory object.
+     * @return StateMachine<States, Events> So that you can access values like the current id which is the state.
+     */
     private StateMachine<States, Events> getStateMachine() {
         return stateMachineFactory.getObject();
     }
