@@ -41,7 +41,7 @@ public class LCDisplay {
     }
 
     /**
-     * Custom pin configuration for LCD
+     * Custom pin configuration for LCD. Unused but important for expansions.
      * @param pi4j Pi4J Context object, created via Pi4J.newAutoContext()
      * @param RS Provide GPIO pin for RS as an integer
      * @param E Provide GPIO pin for E as an integer
