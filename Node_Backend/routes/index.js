@@ -55,7 +55,7 @@ router
 // IoT device specific endpoints
 router
     .route('/iot/:iotCode')
-    .get(stateCtrl.iotsFindByCode)
+    .get(authenticateJWT, stateCtrl.iotsFindByCode)
     .put(authenticateJWT, stateCtrl.iotsUpdateIot)
     .delete(authenticateJWT, stateCtrl.iotsDeleteIot);
 
