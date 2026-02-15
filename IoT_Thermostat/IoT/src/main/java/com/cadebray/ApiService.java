@@ -28,18 +28,18 @@ public class ApiService {
      * Generate a new authentication token for the device. Can be called to refresh the token when needed,
      * but should be handled automatically within the service.
      */
-    public void generateToken() {
+    public LoginResponse generateLogin() {
         String form = "deviceId=" + URLEncoder.encode(deviceId, StandardCharsets.UTF_8) +
-                      "&deviceSecret=" + URLEncoder.encode(deviceSecret, StandardCharsets.UTF_8);
+                      "&secret=" + URLEncoder.encode(deviceSecret, StandardCharsets.UTF_8);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<String> request = new HttpEntity<>(form, headers);
 
-        URI uri = resolve("/login");
-        ResponseEntity<String> response = restTemplate.postForEntity(uri, request, String.class);
+        URI uri = resolve("/iot/login");
+        ResponseEntity<LoginResponse> response = restTemplate.postForEntity(uri, request, LoginResponse.class);
 
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            this.token = response.getBody();
+            return response.getBody();
         } else {
             throw new RuntimeException("Failed to generate token: " + response.getStatusCode());
         }
