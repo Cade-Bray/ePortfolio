@@ -62,8 +62,4 @@ router
     .put(authenticateJWT, stateCtrl.iotsUpdateIot)
     .delete(authenticateJWT, stateCtrl.iotsDeleteIot);
 
-// Register a new IoT device
-//router
-//    .post(authenticateJWT, stateCtrl.)
-
 module.exports = router;

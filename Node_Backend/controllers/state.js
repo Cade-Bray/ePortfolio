@@ -65,16 +65,25 @@ async function iotList(req, res) {
  */
 async function iotsFindByCode(req, res) {
     const query = await Model
-        .find({'code': req.params.iotCode})
-        .exec();
+        .findOne({
+                '_id': req.params.iotCode,
+                $or: [
+                    {'auth_users': { $in: [new mongoose.Types.ObjectId(req.auth._id)]}},
+                    {'_id': req.auth._id}
+                ]
+        }).exec();
 
     if (!query) {
-        // Database returned nothing in this instance
-        return res.status(404).json({message: 'IoT couldn\'t be found!'});
-    } else {
-        // Good query, 200 and pack query return.
-        return res.status(200).json(query);
+        return res.status(404).json({message: 'IoT couldn\'t be found or unauthorized to access.'});
     }
+
+    // Sanitize the returned document for security reasons.
+    const deviceObj = query.toObject();
+    delete deviceObj.salt;
+    delete deviceObj.hash;
+    delete deviceObj.__v;
+
+    return res.status(200).json(deviceObj);
 }
 
 /**
