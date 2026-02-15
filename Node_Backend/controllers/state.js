@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Model = mongoose.model('iot');
-const authCtrl = require('../controllers/authentication');
 
 /**
  * GET - /iot <br>
@@ -10,32 +9,8 @@ const authCtrl = require('../controllers/authentication');
  * @return {Promise<*>} Returns a packed express response with status code 200/404 with JSON content.
  */
 async function iotList(req, res) {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader) {
-        return res.status(401).json({ message: 'Authorization header required.' });
-    }
-
-    const parts = authHeader.split(' ');
-    if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
-        return res.status(400).json({ message: 'Malformed Authorization header.' });
-    }
-
-    const token = parts[1];
-    let decoded;
-    try {
-        decoded = authCtrl.decodeToken(token);
-    } catch (err) {
-        console.warn('Token decode failed:', err.message);
-        return res.status(401).json({ message: 'Invalid or expired token.' });
-    }
-
-    const auth_user = decoded && decoded._id ? decoded._id : null;
-    if (!auth_user) {
-        return res.status(401).json({ message: 'No authorized user provided.' });
-    }
-
     const query = await Model
-        .find({"auth_users": { $in: [new mongoose.Types.ObjectId(auth_user)]}})
+        .find({"auth_users": { $in: [new mongoose.Types.ObjectId(req.auth._id)]}})
         .exec();
 
     // Remove salt, hash, and mongoose schema version from the returned documents for security reasons
@@ -67,6 +42,7 @@ async function iotsFindByCode(req, res) {
     const query = await Model
         .findOne({
                 '_id': req.params.iotCode,
+                // Access control to ensure that only the device itself or an authorized user can update the device info.
                 $or: [
                     {'auth_users': { $in: [new mongoose.Types.ObjectId(req.auth._id)]}},
                     {'_id': req.auth._id}
@@ -95,26 +71,30 @@ async function iotsFindByCode(req, res) {
  */
 async function iotsUpdateIot(req, res) {
 
-    // Check if iot code in params is the same in the JWT. This is a security measure to ensure that the device can only
-    // update itself.
-    if (req.params.iotCode !== req.auth._id) {
-        return res.status(401).json({message: 'Unauthorized to update this device.'});
-    }
-
     const query = await Model.findOneAndUpdate(
-        {'_id': req.params.iotCode},
+        {
+            '_id': req.params.iotCode,
+            // Access control to ensure that only the device itself or an authorized user can update the device info.
+            $or: [
+                {'auth_users': { $in: [new mongoose.Types.ObjectId(req.auth._id)]}},
+                {'_id': req.auth._id}
+            ]
+        },
         {
             name: req.body.name,
             state: req.body.state,
             setTemp: req.body.setTemp,
-            lastChecked: new Date(),
-            currentTemp: req.body.currentTemp
+            // Update the lastChecked and currentTemp only if it's the device itself not an authorized user.
+            // This is to prevent users from updating the lastChecked field when they update the device information.
+            // Using the spread operator to conditionally add the lastChecked field.
+            ...(req.params.iotCode === req.auth._id && { lastChecked: new Date() }),
+            ...(req.params.iotCode === req.auth._id && { currentTemp: req.body.currentTemp })
         }
     ).exec();
 
     if (!query){
         // Database returned nothing
-        return res.status(400).json(query.error);
+        return res.status(400).json({message: 'Update failed or unauthorized'});
     } else {
         // Return the resulting updated document
         return res.status(201).json({message: `IoT device with code ${req.params.iotCode} has been updated.`});
