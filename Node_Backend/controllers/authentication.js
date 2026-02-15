@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const IotDevice = require('../models/iot');
 const passport = require('passport');
 const { verify } = require("jsonwebtoken");
 
@@ -71,6 +72,48 @@ async function login(req, res, next) {
             return res.status(401).json(info);
         }
     }) (req, res, next);
+}
+
+/**
+ * This function handles the login authentication for IoT devices.
+ * @param req Express provided requirements. Used to parse the deviceId and secret.
+ * @param res Express provided response. This is packed with a status and JSON data.
+ * @param next Express next function in the middleware chain.
+ * @returns {Promise<*>} Returning a status code 200/400/401/404 packed in an express response. Packed with JSON data.
+ */
+async function iotLogin(req, res, next) {
+    // Error trap for not filling out all fields.
+    if (!req.body.deviceId || !req.body.secret) {
+        return res.status(400).json({message: 'All fields are required.'});
+    }
+
+    // Using passport for authentication
+    passport.authenticate('iot', (err, device, info) => {
+        // Error trap
+        if (err) {
+            // Error in authentication process.
+            return res.status(404).json(err);
+        }
+
+        if (device) { // Auth successful
+            const token = device.generateJWT();
+            return res.status(200).json({"token": token, "device": device._id});
+        } else { // Auth failed
+            return res.status(401).json(info);
+        }
+    }) (req, res, next);
+}
+
+async function iotRegister(req, res) {
+    // Validate message to ensure that all parameters are present.
+    if (!req.body.name || !req.body.secret) {
+        return res.status(400).json({message: 'All fields required'});
+    }
+
+    const device = new IotDevice({
+        name: req.body.name,
+        secret: ''
+    });
 }
 
 module.exports = { register, login, decodeToken };

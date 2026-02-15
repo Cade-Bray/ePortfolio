@@ -2,6 +2,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
 const User = mongoose.model('users');
+const IotDevice = mongoose.model('iot');
 
 passport.use(
     new LocalStrategy(
@@ -32,5 +33,25 @@ passport.use(
         }
     )
 );
+
+passport.use(
+    'iot',
+    new LocalStrategy(
+        {usernameField: 'deviceId', passwordField: 'secret'},
+        async (deviceId, secret, done) => {
+            try {
+                const device = await IotDevice.findById(deviceId).exec();
+                if (!device) return done(null, false, {message: 'Device not found'});
+                if (!device.validSecret(secret)) {
+                    return done(null, false, {message: 'Incorrect Credentials'});
+                }
+
+                return done(null, device);
+            } catch (err) {
+                return done(err);
+            }
+        }
+    )
+)
 
 module.exports = passport;
