@@ -49,5 +49,5 @@ iotDeviceSchema.methods.generateJWT = function () {
     );
 };
 
-const iotDevice = mongoose.model('iot', iotDeviceSchema, 'iot');
+const iotDevice = mongoose.model('iot', iotDeviceSchema, 'iots');
 module.exports = iotDevice;

@@ -75,7 +75,7 @@ async function login(req, res, next) {
 }
 
 /**
- * This function handles the login authentication for IoT devices.
+ * This function handles the login authentication for IoT devices. The tokens 1m short-lived.
  * @param req Express provided requirements. Used to parse the deviceId and secret.
  * @param res Express provided response. This is packed with a status and JSON data.
  * @param next Express next function in the middleware chain.
@@ -104,6 +104,13 @@ async function iotLogin(req, res, next) {
     }) (req, res, next);
 }
 
+/**
+ * This is the registration function for IoT devices. The request is parsed to create a new device under the schema.
+ * The return is JWT.
+ * @param req This is the Express request. This is parsed for the name and secret provided in plaintext.
+ * @param res This is the Express response. This will be packed with a status code 400/200 and a token if applicable.
+ * @returns {Promise<*>} Express response with a JSON of a JWT.
+ */
 async function iotRegister(req, res) {
     // Validate message to ensure that all parameters are present.
     if (!req.body.name || !req.body.secret) {
@@ -114,6 +121,18 @@ async function iotRegister(req, res) {
         name: req.body.name,
         secret: ''
     });
+
+    device.setSecret(req.body.secret);
+    const query = await device.save();
+
+    if (!query) {
+        // Database returned nothing
+        return res.status(400).json(err);
+    } else {
+        // Return a new device token
+        const token = device.generateJWT();
+        return res.status(200).json({"token": token, "device": device._id});
+    }
 }
 
-module.exports = { register, login, decodeToken };
+module.exports = { register, login, decodeToken, iotLogin, iotRegister };

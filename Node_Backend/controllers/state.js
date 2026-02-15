@@ -109,7 +109,8 @@ async function iotsUpdateIot(req, res) {
             name: req.body.name,
             state: req.body.state,
             setTemp: req.body.setTemp,
-            lastChecked: new Date()
+            lastChecked: new Date(),
+            currentTemp: req.body.currentTemp
         }
     ).exec();
 

@@ -46,6 +46,10 @@ function authenticateJWT(req, res, next) {
 router.post('/register', authCtrl.register);
 router.post('/login', authCtrl.login);
 
+// This is the registration endpoint and login endpoint for IoT devices.
+router.post('/iot/register', authCtrl.iotRegister);
+router.post('/iot/login', authCtrl.iotLogin);
+
 // IoT device endpoints
 router
     .route('/iot')
