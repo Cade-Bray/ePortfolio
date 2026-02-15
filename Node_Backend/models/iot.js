@@ -5,13 +5,15 @@ const jwt = require('jsonwebtoken');
 // Define the device schema
 const iotDeviceSchema = new mongoose.Schema({
     name: {type: String, required: true},
-    state: {type: String},
+    state: {type: String, default: 'OFF'},
     currentTemp: {type: Number},
-    setTemp: {type: Number},
+    setTemp: {type: Number, default: 72.0},
     lastChecked: {type: Date, default: Date.now()},
     hash: {type: String},
     salt: {type: String},
     auth_users: {type: Array}
+}, {
+    id: false
 });
 
 // Method to set the secret on this record.

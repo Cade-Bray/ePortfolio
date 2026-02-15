@@ -33,7 +33,7 @@ function authenticateJWT(req, res, next) {
     // Verifying the jwt
     jwt.verify(token, process.env.JWT_SECRET, (err, verified) => {
         if (err){
-            return res.sendStatus(401).json({message: 'Token validation error!'});
+            return res.status(401).json({message: 'Token validation error!'});
         }
 
         // Pack the decoded information into the auth header to travel further down the line.
@@ -54,7 +54,6 @@ router.post('/iot/login', authCtrl.iotLogin);
 router
     .route('/iot')
     .get(authenticateJWT, stateCtrl.iotList) // GET request for all IoT devices
-    .post(authenticateJWT, stateCtrl.iotsAddIot); // POST request to create an IoT device
 
 // IoT device specific endpoints
 router
