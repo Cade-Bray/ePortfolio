@@ -1,5 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Node Backend" type="NodeJSConfigurationType" path-to-js-file="app.js" working-dir="$PROJECT_DIR$/Node_Backend">
+    <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
+      <browser with-js-debugger="true" />
+    </EXTENSION>
     <method v="2" />
   </configuration>
 </component>

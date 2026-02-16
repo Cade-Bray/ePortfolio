@@ -25,6 +25,7 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
     private final ThermostatProperties thermostatProperties;
     private final LedService ledService;
     private final ObjectFactory<StateMachine<States, Events>> stateMachineFactory;
+    private final ApiService apiService;
 
     /**
      * Constructor for StateMachineConfig
@@ -33,10 +34,11 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * @param stateMachine This is the StateMachine instance
      */
     public StateMachineConfig(LedService ledService, ThermostatProperties thermostatProperties,
-                              ObjectFactory<StateMachine<States, Events>> stateMachine) {
+                              ObjectFactory<StateMachine<States, Events>> stateMachine, ApiService apiService) {
         this.ledService = ledService;
         this.thermostatProperties = thermostatProperties;
         this.stateMachineFactory = stateMachine;
+        this.apiService = apiService;
     }
 
     /**
@@ -188,6 +190,11 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * Actions to perform when entering the OFF state
      */
     private void onEnterOff() {
+        CurrentState state = new CurrentState();
+        state.setState("OFF");
+        state.set_id(apiService.getDeviceId());
+
+        apiService.setState(state);
         ledService.setOff();
     }
 
@@ -195,6 +202,11 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * Actions to perform when entering the COOL state
      */
     private void onEnterCool() {
+        CurrentState state = new CurrentState();
+        state.setState("COOL");
+        state.set_id(apiService.getDeviceId());
+
+        apiService.setState(state);
         ledService.onEnterCool();
     }
 
@@ -202,6 +214,11 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * Actions to perform when entering the HEAT state
      */
     private void onEnterHeat() {
+        CurrentState state = new CurrentState();
+        state.setState("HEAT");
+        state.set_id(apiService.getDeviceId());
+
+        apiService.setState(state);
         ledService.onEnterHeat();
     }
 
@@ -220,7 +237,13 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * @return The new thermostat setpoint
      */
     public double decrementSetpoint() {
-        return thermostatProperties.decrementSetpoint();
+        double newSetPoint = thermostatProperties.decrementSetpoint();
+        CurrentState state = new CurrentState();
+        state.setSetTemp(newSetPoint);
+        state.set_id(apiService.getDeviceId());
+
+        apiService.setState(state);
+        return newSetPoint;
     }
 
     /**
@@ -228,7 +251,13 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
      * @return The new thermostat setpoint
      */
     public double incrementSetpoint() {
-        return thermostatProperties.incrementSetpoint();
+        double newSetPoint = thermostatProperties.incrementSetpoint();
+        CurrentState state = new CurrentState();
+        state.setSetTemp(newSetPoint);
+        state.set_id(apiService.getDeviceId());
+
+        apiService.setState(state);
+        return newSetPoint;
     }
 
     /**

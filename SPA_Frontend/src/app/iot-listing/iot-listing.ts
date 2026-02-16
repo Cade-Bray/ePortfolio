@@ -2,7 +2,7 @@ import { Component, Signal } from '@angular/core';
 import { IoT } from '../models/iot-device';
 import { Authentication } from '../services/authentication';
 import { DatePipe } from '@angular/common';
-import {interval, Observable, startWith, switchMap} from 'rxjs';
+import {filter, interval, merge, Observable, startWith, Subject, switchMap} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import {toSignal} from '@angular/core/rxjs-interop';
 
@@ -15,23 +15,24 @@ import {toSignal} from '@angular/core/rxjs-interop';
   styleUrl: './iot-listing.css',
 })
 export class IotListing {
-  devices: Signal<IoT[]>;
+  devices: Signal<IoT[] | undefined>;
+  private racelock: boolean = false; // adding a mutex lock to prevent race condition in the updateDevice method and poll.
+  private refreshTrigger = new Subject<void>(); // Subject to trigger manual refresh of devices list
 
   /**
    * Constructor for IotListing component.
    */
   constructor(public authenticate: Authentication, private http: HttpClient) {
-    this.devices = toSignal<IoT[]>(
-      interval(10000).pipe(
+    this.devices = toSignal(
+      merge(
+        interval(10000),
+        this.refreshTrigger
+      ).pipe(
         startWith(0),
-        // Switch to the HTTP request observable
-        // to fetch the devices every 10 seconds
-        // including immediately on subscription
-        switchMap(() => this.getDevices()),
-        // Ensure the initial value is emitted immediately
-        startWith([] as IoT[])
+        filter(() => !this.racelock), // Only fetch devices if not currently updating
+        switchMap(() => this.getDevices())
       ),
-      { requireSync: true }
+      { initialValue: [] as IoT[], requireSync: false }
     );
   }
 
@@ -40,6 +41,11 @@ export class IotListing {
    * @returns Array of IoT devices associated with the user as an authorized user.
    */
   getDevices(): Observable<IoT[]> {
+    // Skip polling if an update is in progress to prevent race conditions
+    if (this.racelock) {
+      return new Observable(observer => observer.complete());
+    }
+
     return this.http.get<IoT[]>(`${this.authenticate.baseURL}/iot`, {
       headers: {
         Authorization: `Bearer ${this.authenticate.getToken()}`
@@ -92,6 +98,9 @@ export class IotListing {
    * @returns void
    */
   updateDevice(device: IoT) {
+    // Lock the update to prevent race conditions
+    this.racelock = true;
+
     this.http.put(`${this.authenticate.baseURL}/iot/${device._id}`,
       { name: device.name, state: device.state, setTemp: device.setTemp },
       {
@@ -102,9 +111,12 @@ export class IotListing {
     ).subscribe({
       next: () => {
         console.log('Device state updated successfully');
+        this.racelock = false; // Unlock after successful update
+        this.refreshTrigger.next();
       },
       error: (err) => {
         console.error('Error updating device state:', err);
+        this.racelock = false; // Unlock on error to allow future updates
       }
     });
   }

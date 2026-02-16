@@ -71,25 +71,37 @@ async function iotsFindByCode(req, res) {
  */
 async function iotsUpdateIot(req, res) {
 
+    // Build the update object conditionally
+    const updateFields = {};
+
+    if (req.body.name !== undefined && req.body.name !== null) {
+        updateFields.name = req.body.name;
+    }
+    if (req.body.state !== undefined && req.body.state !== null) {
+        updateFields.state = req.body.state;
+    }
+    if (req.body.setTemp !== undefined && req.body.setTemp !== null) {
+        updateFields.setTemp = req.body.setTemp;
+    }
+
+    // Update the lastChecked and currentTemp only if it's the device itself
+    if (req.params.iotCode === req.auth._id) {
+        updateFields.lastChecked = new Date();
+        if (req.body.currentTemp !== undefined && req.body.currentTemp !== null) {
+            updateFields.currentTemp = req.body.currentTemp;
+        }
+    }
+
     const query = await Model.findOneAndUpdate(
         {
             '_id': req.params.iotCode,
-            // Access control to ensure that only the device itself or an authorized user can update the device info.
             $or: [
                 {'auth_users': { $in: [new mongoose.Types.ObjectId(req.auth._id)]}},
                 {'_id': req.auth._id}
             ]
         },
-        {
-            name: req.body.name,
-            state: req.body.state,
-            setTemp: req.body.setTemp,
-            // Update the lastChecked and currentTemp only if it's the device itself not an authorized user.
-            // This is to prevent users from updating the lastChecked field when they update the device information.
-            // Using the spread operator to conditionally add the lastChecked field.
-            ...(req.params.iotCode === req.auth._id && { lastChecked: new Date() }),
-            ...(req.params.iotCode === req.auth._id && { currentTemp: req.body.currentTemp })
-        }
+        { $set: updateFields },
+        { new: true } // Return the updated document
     ).exec();
 
     if (!query){

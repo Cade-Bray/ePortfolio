@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * This is a small helper class for managing login response objects.
  */
-public class LoginResponse {
+public class loginResponse {
     @JsonProperty("token")
     private String token;
 
@@ -15,7 +15,7 @@ public class LoginResponse {
     /**
      * This is the constructor initialized values are injected by fasterxml.jackson
      */
-    public LoginResponse(){}
+    public loginResponse(){}
 
     public String getToken(){
         return token;

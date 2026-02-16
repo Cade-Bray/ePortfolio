@@ -1,6 +1,7 @@
 package com.cadebray;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import java.net.URI;
@@ -25,24 +26,59 @@ public class ApiService {
     }
 
     /**
-     * Generate a new authentication token for the device. Can be called to refresh the token when needed,
-     * but should be handled automatically within the service.
+     * Generate a new login request object for the device. Can be called to refresh the token when needed,
+     * but should be handled automatically with the scheduler.
      */
-    public LoginResponse generateLogin() {
+    @Scheduled(fixedDelay = 50000)
+    public void generateLogin() {
         String form = "deviceId=" + URLEncoder.encode(deviceId, StandardCharsets.UTF_8) +
-                      "&secret=" + URLEncoder.encode(deviceSecret, StandardCharsets.UTF_8);
+                "&secret=" + URLEncoder.encode(deviceSecret, StandardCharsets.UTF_8);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<String> request = new HttpEntity<>(form, headers);
 
-        URI uri = resolve("/iot/login");
-        ResponseEntity<LoginResponse> response = restTemplate.postForEntity(uri, request, LoginResponse.class);
+        URI uri = resolve("/api/iot/login");
+        ResponseEntity<loginResponse> response = restTemplate.postForEntity(uri, request, loginResponse.class);
+
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            this.token = response.getBody().getToken();
+        } else {
+            throw new RuntimeException("Failed to generate login object: " + response.getStatusCode());
+        }
+    }
+
+    /**
+     * This is the get state request. This function will get the current remote state of the thermostat.
+     * @return Returns a CurrentState class object that has all the appropriate fields.
+     */
+    public CurrentState getState(){
+        HttpEntity<String> request = new HttpEntity<>(authHeaders());
+
+        URI uri = resolve("/api/iot/" + getDeviceId());
+        ResponseEntity<CurrentState> response = restTemplate.exchange(uri, HttpMethod.GET, request, CurrentState.class);
 
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
             return response.getBody();
         } else {
-            throw new RuntimeException("Failed to generate token: " + response.getStatusCode());
+            throw new RuntimeException("Failed to get current state: " + response.getStatusCode());
         }
+    }
+
+    /**
+     * This function will make the post request to update the thermostat remote state. This should only be called on
+     * button presses.
+     * @param state
+     */
+    public void setState(CurrentState state){
+        HttpEntity<CurrentState> request = new HttpEntity<>(state, authHeaders());
+
+        URI uri = resolve("/api/iot/" + getDeviceId());
+        ResponseEntity<CurrentState> response = restTemplate.exchange(
+                uri,
+                HttpMethod.PUT,
+                request,
+                CurrentState.class
+        );
     }
 
     /**
@@ -71,46 +107,6 @@ public class ApiService {
         }
 
         return headers;
-    }
-
-    /**
-     * Perform a GET request to the specified path with authentication.
-     * @param path The relative path for the GET request.
-     * @return ResponseEntity containing the response body as a String.
-     */
-    public ResponseEntity<String> get(String path) {
-        HttpEntity<Void> entity = new HttpEntity<>(authHeaders());
-        return restTemplate.exchange(resolve(path), HttpMethod.GET, entity, String.class);
-    }
-
-    /**
-     * Perform a POST request to the specified path with authentication.
-     * @param path The relative path for the POST request.
-     * @return ResponseEntity containing the response body as a String.
-     */
-    public ResponseEntity<String> post(String path) {
-        HttpEntity<Void> entity = new HttpEntity<>(authHeaders());
-        return restTemplate.exchange(resolve(path), HttpMethod.POST, entity, String.class);
-    }
-
-    /**
-     * Perform a PUT request to the specified path with authentication.
-     * @param path The relative path for the PUT request.
-     * @return ResponseEntity containing the response body as a String.
-     */
-    public ResponseEntity<String> put(String path) {
-        HttpEntity<Void> entity = new HttpEntity<>(authHeaders());
-        return restTemplate.exchange(resolve(path), HttpMethod.PUT, entity, String.class);
-    }
-
-    /**
-     * Perform a DELETE request to the specified path with authentication.
-     * @param path The relative path for the DELETE request.
-     * @return ResponseEntity containing the response body as a String.
-     */
-    public ResponseEntity<String> delete(String path) {
-        HttpEntity<Void> entity = new HttpEntity<>(authHeaders());
-        return restTemplate.exchange(resolve(path), HttpMethod.DELETE, entity, String.class);
     }
 
     /**

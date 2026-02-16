@@ -12,7 +12,7 @@
   </div>
   <div class="row g-2 mt-0 justify-content-center">
     <!-- IoT Device cards will be rendered here -->
-    @for (device of devices(); track device._id) {
+    @for (device of devices() ?? []; track device._id) {
       <div class="col-12 col-md-6 col-lg-4 m-3">
         <div class="card card-size h-100">
           <div class="card-header">{{device.name}}</div>
