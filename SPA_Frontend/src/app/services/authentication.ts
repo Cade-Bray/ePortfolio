@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 export class Authentication {
 
   // Globals
-  public baseURL = 'http://localhost:3000/api';
+  public baseURL = 'http://localhost:3000/api'; // TODO replace with .env variable
 
   /**
    * Setup storage and service access
