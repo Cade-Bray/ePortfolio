@@ -7,7 +7,7 @@ Welcome to my ePortfolio and let me introduce you to the project at hand. I've b
 
 ### Setting up the Node JS environment
 1. Ensure that you have git installed with `git -v` if you don't you can install it [HERE](https://git-scm.com/install/).
-2. Ensure that you have mongodb installed with `mongod --version`. If you don't have it installed can install it [HERE](https://www.mongodb.com/try/download/community).
+2. Ensure that you have mongodb installed with `mongod --version`. If you don't have it installed it can be [HERE](https://www.mongodb.com/try/download/community).
 3. Clone this repository with `git clone https://github.com/Cade-Bray/ePortfolio.git`.
 4. Create a .env file in the Node Backend file that contains your JWT secret as `JWT_SECRET=yoursecrethere` for example. This will be loaded on runtime.
 5. This step various depending on your operating system. You need to open port 3000 for the node backend to communicate. On a debian based operating system you can add a firewall rule with `sudo ufw allow 3000`.
