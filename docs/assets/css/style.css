@@ -1,4 +1,8 @@
-.bade-row {
+---
+---
+
+@import "{{ site.theme }}";
+.badge-row {
     display: flex;
     gap:12px;
     align-items: center;
