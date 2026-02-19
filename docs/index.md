@@ -23,7 +23,7 @@ Welcome to my ePortfolio and let me introduce you to the project at hand. I've b
 5. Load your device ID you recieved from the production script into the /etc/environment as `DEVICE_ID=deviceidhere` for example.
 6. Load your Node JS backend address in the /etc/environment as `ENDPOINT=backendpointhere` for example.
 7. Install java on the device by following the Ubuntu 'Install the Java Runtime Environment' guide found [HERE](https://ubuntu.com/tutorials/install-jre#1-overview).
-8. Use the following command to download the .jar file from this github repository's releases to the device.
+8. Use the following command to download the .jar file from this github repository's releases to the device. You may need to `sudo apt install jq` if you haven't already.
 ```Bash
 REPO="Cade-Bray/ePortfolio"
 JAR_NAME=$(curl -sL "https://api.github.com/repos/$REPO/releases/latest" \
