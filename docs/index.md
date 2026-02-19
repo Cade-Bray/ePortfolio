@@ -3,9 +3,9 @@ Welcome to my ePortfolio and let me introduce you to the project at hand. I've b
 
 [![Watch the demo](https://img.youtube.com/vi/PNeJJ2FwW3w/hqdefault.jpg)](https://www.youtube.com/watch?v=PNeJJ2FwW3w)
 
-## Getting a demo setup locally
+# Deployment Instructions
 
-##### Setting up your device
+### Setting up your device
 1. The first step to setting up the device itself is wiring the GPIO. Visit [THIS](gpio.md) page to wire up your device accordingly.
 2. Next is to load the operating system to your thermostat device. Any linux based operating system can be uitlized and I've chosen Ubuntu server 24.04.4 LTS.
 3. Load your device secret into the /etc/environment as `DEVICE_SECRET=SuperSecret` for example.
@@ -16,8 +16,8 @@ TODO
 ```
 6. Launch the .jar file with `TODO` and if the device is configured correctly you will see regular state output appear on the display.
 
-##### Setting up the Node JS environment
+### Setting up the Node JS environment
 1. TODO
 
-##### Setting up the Angular environment
+### Setting up the Angular environment
 1. TODO
