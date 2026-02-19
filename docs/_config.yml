@@ -2,6 +2,7 @@
 title: ePortfolio
 description: Full-Stack and Embedded Portfolio Project
 github_username: Cade-Bray
+show_downloads: true
 
 # Build settings
 remote_theme: pages-themes/architect@v0.2.0
