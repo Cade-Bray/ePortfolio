@@ -6,7 +6,7 @@ Welcome to my ePortfolio and let me introduce you to the project at hand. I've b
 # Deployment Instructions
 
 ### Setting up your device
-1. The first step to setting up the device itself is wiring the GPIO. Visit [THIS](gpio.md) page to wire up your device accordingly.
+1. The first step to setting up the device itself is wiring the GPIO. Visit [THIS](gpio) page to wire up your device accordingly.
 2. Next is to load the operating system to your thermostat device. Any linux based operating system can be uitlized and I've chosen Ubuntu server 24.04.4 LTS.
 3. Load your device secret into the /etc/environment as `DEVICE_SECRET=SuperSecret` for example.
 4. Install java on the device by following the Ubuntu 'Install the Java Runtime Environment' guide found [HERE](https://ubuntu.com/tutorials/install-jre#1-overview).
