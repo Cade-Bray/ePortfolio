@@ -3,7 +3,8 @@
 
 @import "{{ site.theme }}";
 .badge-row {
-    display: inline-block;
+    display: table;
+    margin: 0 auto;
     gap:12px;
     align-items: center;
     flex-wrap: wrap;
@@ -11,8 +12,7 @@
 
 .badge-item {
     position: relative;
-    display: table;
-    margin: 0 auto;
+    display: inline-flex;
     align-items: center;
 }
 
