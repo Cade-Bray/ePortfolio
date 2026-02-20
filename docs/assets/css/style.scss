@@ -3,17 +3,15 @@
 
 @import "{{ site.theme }}";
 .badge-row {
-    display: table;
-    margin: 0 auto;
-    gap:12px;
+    display: flex;
     align-items: center;
     flex-wrap: wrap;
 }
 
 .badge-item {
     position: relative;
-    display: inline-flex;
-    align-items: center;
+    display: table;
+    margin: 0 auto;
 }
 
 .badge-count {
