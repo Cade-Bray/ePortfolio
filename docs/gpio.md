@@ -67,4 +67,5 @@ Before we go any further place your T connector at the top of your GPIO breadboa
 
 *Congratulations*, you've setup the entire device and should look something like this:
 
-![IoT Thermostat wired completely.](iot_thermostat.png)
+![IoT Thermostat wired completely.](iot_thermostat.jpg)
+
