@@ -17,6 +17,7 @@
 
 Before we go any further place your T connector at the top of your GPIO breadboard. Connect the T connector to the RPI GPIO pin set. Finally connect the AHT20 sensor via I2C on the RPI itself.
 
+
 ### Wiring Instructions
 ---
 
@@ -36,3 +37,4 @@ Before we go any further place your T connector at the top of your GPIO breadboa
 13. Run a Dupont cable from **E59** to **GND** pin.
 
 *Congratulations*, you've setup the display for the thermostat device. Now we'll wire up the potentiometer.
+
