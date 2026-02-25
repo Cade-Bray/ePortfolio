@@ -1,4 +1,4 @@
-# GPIO Setup Instructions
+# Device Setup Instructions
 ---
 
 ### What you'll need
@@ -37,4 +37,5 @@ Before we go any further place your T connector at the top of your GPIO breadboa
 13. Run a Dupont cable from **E59** to **GND** pin.
 
 *Congratulations*, you've setup the display for the thermostat device. Now we'll wire up the potentiometer.
+
 
