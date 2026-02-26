@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const iotDeviceSchema = new mongoose.Schema({
     name: {type: String, required: true},
     state: {type: String, default: 'OFF'},
-    currentTemp: {type: Number},
+    currentTemp: {type: Number, default: 72.0},
     setTemp: {type: Number, default: 72.0},
     lastChecked: {type: Date, default: Date.now()},
     hash: {type: String},

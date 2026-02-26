@@ -1,1 +1,49 @@
-<p>device-registration works!</p>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>Register Device</h4>
+        </div>
+        <div class="card-body">
+          @if (errorMessage) {
+             <div class="alert alert-danger">{{ errorMessage }}</div>
+          }
+          @if (successMessage) {
+             <div class="alert alert-success">{{ successMessage }}</div>
+          }
+
+          <form (ngSubmit)="registerDevice()">
+            <div class="mb-3">
+              <label for="deviceId" class="form-label">Device ID</label>
+              <input
+                type="text"
+                class="form-control"
+                id="deviceId"
+                [(ngModel)]="device._id"
+                name="deviceId"
+                placeholder="Enter device ID"
+                required>
+            </div>
+
+            <div class="mb-3">
+              <label for="deviceName" class="form-label">Device Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="deviceName"
+                [(ngModel)]="device.name"
+                name="deviceName"
+                placeholder="Enter device name"
+                required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-color w-100" [disabled]="!device._id || !device.name || isLoading">
+              {{ isLoading ? 'Registering...' : 'Register Device' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -4,5 +4,6 @@ export interface IoT {
   setTemp: number,
   currentTemp: number,
   lastChecked: Date,
-  state: string
+  state: string,
+  auth_users?: string[]
 }

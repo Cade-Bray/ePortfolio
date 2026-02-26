@@ -83,6 +83,10 @@ async function iotsUpdateIot(req, res) {
     if (req.body.setTemp !== undefined && req.body.setTemp !== null) {
         updateFields.setTemp = req.body.setTemp;
     }
+    if (req.body.auth_users !== undefined && req.body.auth_users !== null) {
+        // Ensure that the auth_users field is an array of ObjectIds
+        updateFields.auth_users = req.body.auth_users.map(userId => new mongoose.Types.ObjectId(userId));
+    }
 
     // Update the lastChecked and currentTemp only if it's the device itself
     if (req.params.iotCode === req.auth._id) {
@@ -97,6 +101,7 @@ async function iotsUpdateIot(req, res) {
             '_id': req.params.iotCode,
             $or: [
                 {'auth_users': { $in: [new mongoose.Types.ObjectId(req.auth._id)]}},
+                {'auth_users': []},
                 {'_id': req.auth._id}
             ]
         },

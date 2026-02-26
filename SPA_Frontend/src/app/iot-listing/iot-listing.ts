@@ -2,14 +2,16 @@ import { Component, Signal } from '@angular/core';
 import { IoT } from '../models/iot-device';
 import { Authentication } from '../services/authentication';
 import { DatePipe } from '@angular/common';
-import {filter, interval, merge, Observable, startWith, Subject, switchMap} from 'rxjs';
+import { filter, interval, merge, Observable, startWith, Subject, switchMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import {toSignal} from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-iot-listing',
   imports: [
-    DatePipe
+    DatePipe,
+    RouterLink
   ],
   templateUrl: './iot-listing.html',
   styleUrl: './iot-listing.css',
