@@ -124,11 +124,37 @@ export class IotListing {
   }
 
   /**
-   * Register a new IoT device for the user.
+   * Navigate to the device edit page for the specified device.
+   * @param device The IoT device to edit
    * @returns void
    */
-  registerDevice() {
-    // TODO: Call backend API to register a new device
+  protected editDevice(device: IoT) {
+    // Navigate to the device edit page with the device ID as a parameter
   }
 
+  /**
+   * Update the authorized users to remove the current users access to the device and effectively delete the device from
+   * their listing. This does not actually delete the device from the database, but it will no longer be visible to the
+   * user, and they will not be able to interact with it.
+   * @param _id The id of the IoT device to delete
+   * @returns void
+   */
+  protected deleteDevice(_id: string) {
+    this.http.put(`${this.authenticate.baseURL}/iot/${_id}`,
+      { auth_users: [] },
+      {
+        headers: {
+          Authorization: `Bearer ${this.authenticate.getToken()}`
+        }
+      }
+    ).subscribe({
+      next: () => {
+        console.log('Device deleted successfully');
+        this.refreshTrigger.next(); // Refresh the device list after deletion
+      },
+      error: (err) => {
+        console.error('Error deleting device:', err);
+      }
+    });
+  }
 }

@@ -19,9 +19,12 @@
                name="password"
                [(ngModel)]="credentials.password">
       </div>
-      <div class="d-grid gap-2 col-6 mx-auto">
+      <div class="d-flex gap-2 justify-content-center">
         <button type="submit" role="button" class="btn btn-primary">
-          Sign In!
+          Sign In
+        </button>
+        <button type="button" role="button" class="btn btn-secondary" routerLink="/register">
+          Register
         </button>
       </div>
     </form>

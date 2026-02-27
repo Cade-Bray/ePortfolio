@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from "@angular/forms";
-import { Router } from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import { Authentication } from '../services/authentication';
 import { User } from '../models/user';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -47,7 +47,7 @@ export class Login implements OnInit{
     // Create a new User object with the provided credentials
     let newUser = {
       name: this.credentials.name,
-      email: this.credentials.email
+      email: this.credentials.email.toLowerCase()
     } as User;
 
     // Call the login method of the Authentication service

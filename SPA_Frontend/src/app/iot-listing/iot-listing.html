@@ -16,6 +16,15 @@
       <div class="col-12 col-md-6 col-lg-4 m-3">
         <div class="card card-size h-100">
           <div class="card-header">{{device.name}}</div>
+          <!-- Edit and Delete buttons -->
+          <div class="position-absolute top-0 end-0 m-2">
+            <button class="btn btn-sm btn-warning me-1" (click)="editDevice(device)">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="deleteDevice(device._id)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
           <div class="card-body text-center">
             <h5 class="card-title">Current State:
               <button class="btn btn-info py-0 btn-color text-light" (click)="setState(device)">
