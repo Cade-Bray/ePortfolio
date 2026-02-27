@@ -5,7 +5,7 @@ import { DatePipe } from '@angular/common';
 import { filter, interval, merge, Observable, startWith, Subject, switchMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-iot-listing',
@@ -24,7 +24,7 @@ export class IotListing {
   /**
    * Constructor for IotListing component.
    */
-  constructor(public authenticate: Authentication, private http: HttpClient) {
+  constructor(public authenticate: Authentication, private http: HttpClient, private router: Router) {
     this.devices = toSignal(
       merge(
         interval(10000),
@@ -130,6 +130,7 @@ export class IotListing {
    */
   protected editDevice(device: IoT) {
     // Navigate to the device edit page with the device ID as a parameter
+    this.router.navigate(['/edit-device'], {state: {device}}).then();
   }
 
   /**
