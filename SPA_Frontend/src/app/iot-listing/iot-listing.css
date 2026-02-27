@@ -1,6 +1,16 @@
 .btn-color {
-  background-color: #aa00ff;
-  border-color: #aa00ff;
+  background-color: green;
+  border-color: green;
+}
+
+.btn-color:hover {
+  background-color: darkgreen;
+  border-color: darkgreen;
+}
+
+.btn-color:active {
+  background-color: forestgreen;
+  border-color: forestgreen;
 }
 
 .card-size {

@@ -18,3 +18,4 @@
 /node_modules/*
 
 /devices.csv
+/SPA_Frontend/.env

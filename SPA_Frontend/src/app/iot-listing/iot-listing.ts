@@ -6,6 +6,7 @@ import { filter, interval, merge, Observable, startWith, Subject, switchMap } fr
 import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {Router, RouterLink} from '@angular/router';
+import {User} from '../models/user';
 
 @Component({
   selector: 'app-iot-listing',
@@ -20,11 +21,13 @@ export class IotListing {
   devices: Signal<IoT[] | undefined>;
   private racelock: boolean = false; // adding a mutex lock to prevent race condition in the updateDevice method and poll.
   private refreshTrigger = new Subject<void>(); // Subject to trigger manual refresh of devices list
+  protected user: User;
 
   /**
    * Constructor for IotListing component.
    */
   constructor(public authenticate: Authentication, private http: HttpClient, private router: Router) {
+    this.user = this.authenticate.getCurrentUser();
     this.devices = toSignal(
       merge(
         interval(10000),
@@ -157,5 +160,20 @@ export class IotListing {
         console.error('Error deleting device:', err);
       }
     });
+  }
+
+  /**
+   * Random greeting salutation based on the time of day to display at the top of the page.
+   * @returns A string greeting the user based on the time of day.
+   */
+  getGreeting(): string {
+    const currentHour = new Date().getHours();
+    if (currentHour < 12) {
+      return 'Good morning';
+    } else if (currentHour < 18) {
+      return 'Good afternoon';
+    } else {
+      return 'Good evening';
+    }
   }
 }

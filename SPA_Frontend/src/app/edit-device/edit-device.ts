@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import {IoT} from '../models/iot-device';
-import {Router, RouterLink} from '@angular/router';
-import {FormsModule} from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
-import {Authentication} from '../services/authentication';
+import { IoT } from '../models/iot-device';
+import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { Authentication } from '../services/authentication';
 
 @Component({
   selector: 'app-edit-device',
@@ -31,7 +31,8 @@ export class EditDevice {
    */
   protected saveDevice() {
     this.http.put(`${this.authenticate.baseURL}/iot/${this.device?._id}`, {
-      name: this.device?.name
+      name: this.device?.name,
+      setTemp: this.device?.setTemp
     }, {
       headers: {
         Authorization: `Bearer ${this.authenticate.getToken()}`
