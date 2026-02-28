@@ -1,8 +1,38 @@
-# Introduction
-Welcome to my ePortfolio and let me introduce you to the project at hand. I've built a IoT thermostat with a rasperry pi 4 and a GPIO breadboard. The device itself has a I2C temperature and humidity sensor. The device takes user input through three buttons; the first incriments the temperature, the second cycles the mode from `OFF→ HEAT→ COOL→ OFF`, and finally the last button decrements the temperature. As an output to the user we have two methods. The first commincates the mode of the device, temperature, and time on a 16x2 grid display. The second output method communicates to a Node JS backend that manages a mongoDB to synchronize its session. That Node JS backend also enacts various forms of business logic for the API endpoints. These endpoints are also utilized by an Angular SPA front end. The SPA is used as a second medium of control for the IoT device where a user can view and adjust temperature and mode on as many IoT devices as registered. The SPA utilizes a bootstrap enabled minimal design to enhance the user experience. 
+# Introduction and Narative
+Welcome to my ePortfolio and let me introduce you to the project at hand. I've built a IoT thermostat with a rasperry pi 4 and a GPIO breadboard. The device itself has a I2C temperature and humidity sensor. The device takes user input through three buttons; the first incriments the temperature, the second cycles the mode from `OFF→ HEAT→ COOL→ OFF`, and finally the last button decrements the temperature. As an output to the user we have two methods. The first commincates the mode of the device, temperature, and time on a 16x2 grid display. The second output method communicates to a Node JS backend that manages a mongoDB to synchronize its session. That Node JS backend also enacts various forms of business logic for the API endpoints. These endpoints are also utilized by an Angular SPA front end. The SPA is used as a second medium of control for the IoT device where a user can view and adjust temperature and mode on as many IoT devices as registered. The SPA utilizes a bootstrap enabled minimal design to enhance the user experience.
+
+These artifacts are justified for the SNHU capstone because it covers the three demonstration pillars which are Software Design and Engineering, Algorithms and Data Structures, and Databases. Software Design and Engineering will hit the mark because my plan is to utilize the Angular SPA from CS 465 and continue its security enhancements with JSON web tokens. This site works as one of the two points to control the IoT thermostat defined in category two of this assignment. My goal is to have this SPA poll the backend server at regular intervals for state changes of the IoT device(s). Working on the angular SPA will demonstrate an understanding of designing complex systems. Since this is a front-end system, it will additionally show how I can leverage UI/UX to create a positive area for a user. The SPA allows me to single out the design, develop, and deliver professional-quality oral, written, and visual communications that are coherent, technically sound, and appropriately adapted to specific audiences and contexts. This is important in almost any technical role, but it will prove especially valuable in DevSecOps as communication between teams is vital. 
+
+**SPA to Node**
+![SPA to Node](SPA to Node.png)
+
+For the Algorithms and data structures portion of the capstone assignment I’ve chosen to work with the CS 350 final assignment artifact which is an IoT smart thermostat. Enhancements to the physical device will be minimal as the wired-up breakout board over the raspberry pi GPIO has been configured already. The only physical change I can made is removing the serialization feature. I enhanced the project by transferring the logic from python to Java with a series of key libraries such as Pi4J and the Spring Framework components. I showcased my skills to work with complex existing projects and translate them into usable modern system by moving the underlying logic from one language to another. Additionally, I needed to rely on industry standard libraries and their documentation to develop a functional system. The AHT20 sensor for instance has minimal documentation and doesn’t possess a Java library but I reverse engineered it to work with on a java platform given their documentation found [HERE](https://cdn-learn.adafruit.com/assets/assets/000/123/394/original/Data_Sheet_AHT20.pdf?1691532479). This artifact enhancement enables me to demonstrate an ability to use well-founded and innovative techniques, skills, and tools in computing practices for the purpose of implementing computer solutions that deliver value and accomplish industry-specific goals using industry standard libraries, frameworks, and designs.
+
+**State Machine diagram**
+![State Machine](SM.png)
+
+Finally, I used the CS 465 final assignment for the database category. This artifact features a Node.JS backend that controls a Mongo Database. For this enhancement I worked with MongoDB which is a NoSQL structure. This plays to my advantage with its object architecture. Each entry in MongoDB is a device that contains various states and details. This information is updated as the backend is polled via the front-end SPA or the IoT device. The IoT device receives its intended temperature and Heating/Cooling state from what the Node.JS is set too. The Node.JS backend receives read and write states from both the IoT device and the SPA frontend. I demonstrated my ability to secure systems with this project. The database will contain a user table with salted hashes for validation. The System needs to be secure for both IoT devices and users to authenticate. I developed a security mindset that anticipates adversarial exploits in software architecture and designs to expose potential vulnerabilities, mitigate design flaws, and ensure privacy and enhanced security of data and resources. I hope I was able to demonstrate the skills needed to start a security, operations, and developmental overlapping career as often found in DevSecOps. This means that I’ll need to put myself in the shoes of a malicious actor to anticipate and prevent leaks, deploy web servers and databases, and demonstrate various tech stack knowledge such as spring framework. Illustrating my ability to clearly articulate and deliver professional documentation was essential for this capstone project. In my professional self-assessment, I hope to focus on constructive feedback. I hope to account for any oversights throughout the project and propose remedies in a similar way that postmortem security assessments are performed in professional settings.
+
+**Entire System Architecture**
+![Entire system](E_System.png)
 
 **_Watch the Demo!_**<br>
 [![Watch the demo](https://img.youtube.com/vi/u-udlmwfwxY/hqdefault.jpg)](https://youtu.be/u-udlmwfwxY)
+
+---
+
+# Code Review Video
+This video offers a glimpse into the three artifacts chosen for this project selected from courses through Southern New Hampshire University. This code review was done **BEFORE** the final product release that is shown on the GitHub repository now. This review does encompass an analysis of code I wrote in previous courses.
+
+**_Watch the Code Review!_**<br>
+[![Watch the Code Review here](https://img.youtube.com/vi/EuQwGJPcx1U/hqdefault.jpg)](https://youtu.be/EuQwGJPcx1U)
+
+---
+
+# Professional Self Assessment
+Unlike the code review above, this self assessment was completed after the final submission of the capstone project. TODO
+
+---
 
 # Deployment Instructions
 
