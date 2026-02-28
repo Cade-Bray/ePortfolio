@@ -1,1 +1,40 @@
-# ePortfolio
+# Introduction
+Welcome to my ePortfolio and let me introduce you to the project at hand. I've built a IoT thermostat with a rasperry pi 4 and a GPIO breadboard. The device itself has a I2C temperature and humidity sensor. The device takes user input through three buttons; the first incriments the temperature, the second cycles the mode from `OFF→ HEAT→ COOL→ OFF`, and finally the last button decrements the temperature. As an output to the user we have two methods. The first commincates the mode of the device, temperature, and time on a 16x2 grid display. The second output method communicates to a Node JS backend that manages a mongoDB to synchronize its session. That Node JS backend also enacts various forms of business logic for the API endpoints. These endpoints are also utilized by an Angular SPA front end. The SPA is used as a second medium of control for the IoT device where a user can view and adjust temperature and mode on as many IoT devices as registered. The SPA utilizes a bootstrap enabled minimal design to enhance the user experience. 
+
+**_Watch the Demo!_**<br>
+[![Watch the demo](https://img.youtube.com/vi/u-udlmwfwxY/hqdefault.jpg)](https://youtu.be/u-udlmwfwxY)
+
+# Deployment Instructions
+
+### Setting up the Node JS environment
+1. Ensure that you have git installed with `git -v` if you don't you can install it [HERE](https://git-scm.com/install/).
+2. Ensure that you have mongodb installed with `mongod --version`. If you don't have it installed it can be [HERE](https://www.mongodb.com/try/download/community).
+3. Clone this repository with `git clone https://github.com/Cade-Bray/ePortfolio.git` or download the zip file from the latest release [HERE](https://github.com/Cade-Bray/ePortfolio/releases).
+4. Create a .env file in the Node Backend file that contains your JWT secret as `JWT_SECRET=yoursecrethere` for example. This will be loaded on runtime.
+5. This step various depending on your operating system. You need to open port 3000 for the node backend to communicate. On a debian based operating system you can add a firewall rule with `sudo ufw allow 3000`.
+6. Navigate to the back end with `cd ePortfolio/Node_Backend`.
+7. Install the dependencies from the packages.json with `npm install`.
+8. Launch the application with `npm start`.
+
+### Setting up your device
+1. The first step to setting up the raspberry pi 4 device itself is wiring the GPIO. Visit [THIS](docs/gpio.md) page to wire up your device accordingly.
+2. Next is to load the operating system to your thermostat device. Any linux based operating system can be uitlized and I've chosen Ubuntu server 24.04.4 LTS.
+3. Generate a device ID and secret using the production script in this repository. Run `python Production_Script.py` and follow the terminal instructions. You can batch generate device ID's and secrets similar to a production environment. You can find it in the releases section of the repository [HERE](https://github.com/Cade-Bray/ePortfolio/releases).
+4. Load your device secret you recieved from the production script into the /etc/environment as `DEVICE_SECRET=devicesecrethere` for example.
+5. Load your device ID you recieved from the production script into the /etc/environment as `DEVICE_ID=deviceidhere` for example.
+6. Load your Node JS backend address in the /etc/environment as `ENDPOINT=backendpointhere` for example.
+7. Install java on the device by following the Ubuntu 'Install the Java Runtime Environment' guide found [HERE](https://ubuntu.com/tutorials/install-jre#1-overview).
+8. Download the .jar file from the latest release from this repository [HERE](https://github.com/Cade-Bray/ePortfolio/releases)
+6. Launch the .jar file with `java -jar Thermostat.jar` and if the device is configured correctly you will see regular state output appear on the display after the spring boot framework launch information.
+
+### Setting up the Angular environment
+1. Using the same cloned repository you got earlier navigate to the ePortfolio/SPA_Frontend. If you're in the same terminal session still you can use `cd ../SPA_Frontend`.
+2. Install the dependencies from the packages.json with `npm install`.
+3. If your Angular server is not on the same device as your Node JS backend then navigate to 'SPA_Frontend/src/app/services/authentication.ts' and change the `baseURL` address to whatever your NodeJS setup address is currently.
+4. Launch the application with `npm start`.
+
+The Front end should appear like:
+
+![Home page](/docs/homepage.png)
+
+**CONGRATULATIONS!** You've now configured and deployed the thermostat IoT project. Navigate to `http://localhost:4200/` to view the angular page. Register for an account and add the device ID you configured earlier in the device /etc/environments file.
