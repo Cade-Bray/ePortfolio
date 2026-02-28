@@ -18,13 +18,13 @@ Finally, I used the CS 465 final assignment for the database category. This arti
 
 ---
 
-# Watch the Demo!
+## Watch the Demo!
 
 [![Watch the demo](https://img.youtube.com/vi/u-udlmwfwxY/hqdefault.jpg)](https://youtu.be/u-udlmwfwxY)
 
 ---
 
-# Code Review Video
+## Code Review Video
 This video offers a glimpse into the three artifacts chosen for this project selected from courses through Southern New Hampshire University. This code review was done **BEFORE** the final product release that is shown on the GitHub repository now. This review does encompass an analysis of code I wrote in previous courses.
 
 **_Watch the Code Review!_**<br>
@@ -32,7 +32,7 @@ This video offers a glimpse into the three artifacts chosen for this project sel
 
 ---
 
-# Professional Self Assessment
+## Professional Self Assessment
 Unlike the code review above, this self assessment was completed after the final submission of the capstone project. TODO
 
 ---
