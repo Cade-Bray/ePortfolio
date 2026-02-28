@@ -4,7 +4,7 @@ Welcome to my ePortfolio and let me introduce you to the project at hand. I've b
 These artifacts are justified for the SNHU capstone because it covers the three demonstration pillars which are Software Design and Engineering, Algorithms and Data Structures, and Databases. Software Design and Engineering will hit the mark because my plan is to utilize the Angular SPA from CS 465 and continue its security enhancements with JSON web tokens. This site works as one of the two points to control the IoT thermostat defined in category two of this assignment. My goal is to have this SPA poll the backend server at regular intervals for state changes of the IoT device(s). Working on the angular SPA will demonstrate an understanding of designing complex systems. Since this is a front-end system, it will additionally show how I can leverage UI/UX to create a positive area for a user. The SPA allows me to single out the design, develop, and deliver professional-quality oral, written, and visual communications that are coherent, technically sound, and appropriately adapted to specific audiences and contexts. This is important in almost any technical role, but it will prove especially valuable in DevSecOps as communication between teams is vital. <br>
 
 **SPA to Node**<br>
-![SPA to Node]("SPA to Node.png")
+![SPA to Node](SPA_to_Node.png)
 
 For the Algorithms and data structures portion of the capstone assignment I’ve chosen to work with the CS 350 final assignment artifact which is an IoT smart thermostat. Enhancements to the physical device will be minimal as the wired-up breakout board over the raspberry pi GPIO has been configured already. The only physical change I can made is removing the serialization feature. I enhanced the project by transferring the logic from python to Java with a series of key libraries such as Pi4J and the Spring Framework components. I showcased my skills to work with complex existing projects and translate them into usable modern system by moving the underlying logic from one language to another. Additionally, I needed to rely on industry standard libraries and their documentation to develop a functional system. The AHT20 sensor for instance has minimal documentation and doesn’t possess a Java library but I reverse engineered it to work with on a java platform given their documentation found [HERE](https://cdn-learn.adafruit.com/assets/assets/000/123/394/original/Data_Sheet_AHT20.pdf?1691532479). This artifact enhancement enables me to demonstrate an ability to use well-founded and innovative techniques, skills, and tools in computing practices for the purpose of implementing computer solutions that deliver value and accomplish industry-specific goals using industry standard libraries, frameworks, and designs.<br>
 
@@ -16,7 +16,10 @@ Finally, I used the CS 465 final assignment for the database category. This arti
 **Entire System Architecture**<br>
 ![Entire system](E_System.png)
 
-**_Watch the Demo!_**<br>
+---
+
+# Watch the Demo!
+
 [![Watch the demo](https://img.youtube.com/vi/u-udlmwfwxY/hqdefault.jpg)](https://youtu.be/u-udlmwfwxY)
 
 ---
